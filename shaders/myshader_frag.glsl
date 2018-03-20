@@ -58,35 +58,55 @@ void main() {
     vec3 p = FragmentPosition.xyz / FragmentPosition.w;
 
     // Calculate the light vector
-    vec3 s = normalize( vec3(Light.Position) - p);
+    vec3 s = normalize( vec3(Light.Position) - p); //this is s for the h equation
 
-    // Calculate the vertex position
+    // Calculate the vertex position (view vector)
     vec3 v = normalize(vec3(-p));
 
     // Reflect the light about the surface normal
     vec3 r = reflect( -s, n );
 
     //creating a roughness value
+   /* vec3 h = (v+s)/abs(v+s);
+    float m = 0.5;
+    float mSquared = m*m;
+    float NdotH = dot(n, h); //dot product of surface and light position
+    float r1  = 1.0 / (4.0 * mSquared * pow(NdotH, 4.0));
+    float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
+    float roughness = r1 * exp(r2);*/
 
     //computing h
     //s = negative direction of incoming light
     //v = direction of outgoing light
     //h = (v+s)/abs(v+s)
-    
+    //second attempt
+    /*vec3 h = (v+s)/abs(v+s);
+    float alpha = acos(dot(n,h));
+    float m = 0.1;
+    float tanPow = pow(tan(alpha),2);
+    float cosPow = pow(cos(alpha),4);
+    float mpow = pow(m, 2);
 
-    float m = 0.2;
+    float beckmann = (exp(-tanPow / mpow)) / (3.1415936*mpow*cosPow);*/
+    //third attempt
+
+    
+    
+    
+    //first attemp
+    /*float m = 0.1;
     float mSquared = m*m;
-    float NdotH = dot(FragNormal, Light.Position.xyz); //dot product of surface and light position
+    float NdotH = dot(n, h); //dot product of surface and light position
     float r1  = 1.0 / (4.0 * mSquared * pow(NdotH, 4.0));
     float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
-    float roughness = r1 * exp(r2);
+    float roughness = r1 * exp(r2);*/
 
     // Compute the light from the ambient, diffuse and specular components
     vec3 LightIntensity = (
             Light.La * Material.Ka +
             Light.Ld * Material.Kd * max( dot(s, n), 0.0 ) +
-            Light.Ls * Material.Ks * pow( max( dot(r,v), 0.0 ), (Material.Shininess)) * roughness);
+            Light.Ls * Material.Ks * pow( max( dot(r,v), 0.0 ), Material.Shininess));
     // Set the output color of our current pixel
-    FragColor = vec4(colour * LightIntensity,1.0);
+    FragColor = vec4(colour* LightIntensity,1.0);//*roughness;
 }
 

@@ -12,10 +12,10 @@ MAKEFILE      = Makefile
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT5BUILD -DNGL_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
-CFLAGS        = -pipe -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -msse -msse2 -msse3 -march=native -march=native -g -std=gnu++11 -Wall -W -Wno-unused-parameter -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I/home/s4903789/NGL/include -I../common/include -I/public/devel/libigl/include -isystem /usr/local/include/eigen3 -I/public/devel/noise/src -I/home/s4903789/NGL/include -I/opt/Qt5.9.0/5.9/gcc_64/include -I/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL -I/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets -I/opt/Qt5.9.0/5.9/gcc_64/include/QtGui -I/opt/Qt5.9.0/5.9/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I/opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++
+DEFINES       = -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB
+CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
+INCPATH       = -I. -I/opt/Qt5.9.0/5.9/gcc_64/include -I/opt/Qt5.9.0/5.9/gcc_64/include/QtGui -I/opt/Qt5.9.0/5.9/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I/opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++
 QMAKE         = /opt/Qt5.9.0/5.9/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -36,10 +36,10 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = phong1.0.0
-DISTDIR = /home/s4903789/workshops/rendering_workshops/phong/obj/phong1.0.0
+DISTDIR = /home/s4903789/Realtime_Rendering/.tmp/phong1.0.0
 LINK          = g++
-LFLAGS        = -Wl,-rpath,/home/s4903789/NGL/lib -Wl,-z,origin -Wl,-rpath,\$$ORIGIN/L/home/s4903789/NGL/lib -Wl,-rpath,/home/s4903789/NGL/lib -Wl,-rpath,/opt/Qt5.9.0/5.9/gcc_64/lib
-LIBS          = $(SUBLIBS) -lXi -ldl -lX11 -lXrandr -lXinerama -lXcursor -lXxf86vm -lglfw3 -lGLEW -lGLU /public/devel/noise/lib/libnoise.a -L/usr/local/lib -L/home/s4903789/NGL/lib -l NGL -L/opt/Qt5.9.0/5.9/gcc_64/lib -lQt5OpenGL -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+LFLAGS        = -Wl,-O1 -Wl,-rpath,/opt/Qt5.9.0/5.9/gcc_64/lib
+LIBS          = $(SUBLIBS) -L/opt/Qt5.9.0/5.9/gcc_64/lib -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -47,7 +47,7 @@ STRIP         = strip
 
 ####### Output directory
 
-OBJECTS_DIR   = obj/
+OBJECTS_DIR   = ./
 
 ####### Files
 
@@ -56,32 +56,13 @@ SOURCES       = src/main.cpp \
 		../common/src/scene.cpp \
 		../common/src/trackballcamera.cpp \
 		src/shaderscene.cpp 
-OBJECTS       = obj/main.o \
-		obj/camera.o \
-		obj/scene.o \
-		obj/trackballcamera.o \
-		obj/shaderscene.o
+OBJECTS       = main.o \
+		camera.o \
+		scene.o \
+		trackballcamera.o \
+		shaderscene.o
 DIST          = $OTHER_FILES \
-		phong.pro ../common/include/camera.h \
-		../common/include/scene.h \
-		../common/include/trackballcamera.h \
-		src/shaderscene.h src/main.cpp \
-		../common/src/camera.cpp \
-		../common/src/scene.cpp \
-		../common/src/trackballcamera.cpp \
-		src/shaderscene.cpp
-QMAKE_TARGET  = phong
-DESTDIR       = 
-TARGET        = phong
-
-
-first: all
-####### Build rules
-
-$(TARGET):  $(OBJECTS)  
-	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
-
-Makefile: phong.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake.conf /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/spec_pre.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/spec_pre.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/unix.conf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/linux.conf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/sanitize.conf \
@@ -241,12 +222,10 @@ Makefile: phong.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/qt_config.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/spec_post.prf \
-		.qmake.cache \
+		.qmake.stash \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/toolchain.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/default_pre.prf \
-		/home/s4903789/NGL/UseNGL.pri \
-		/home/s4903789/workshops/rendering_workshops/common/common.pri \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/resolve_config.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/default_post.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/warn_on.prf \
@@ -254,7 +233,203 @@ Makefile: phong.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/resources.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/moc.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/unix/opengl.prf \
-		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/uic.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/unix/thread.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/qmake_use.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/file_copies.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/testcase_targets.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/exceptions.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/yacc.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/lex.prf \
+		phong.pro ../common/include/camera.h \
+		../common/include/scene.h \
+		../common/include/trackballcamera.h \
+		src/shaderscene.h src/main.cpp \
+		../common/src/camera.cpp \
+		../common/src/scene.cpp \
+		../common/src/trackballcamera.cpp \
+		src/shaderscene.cpp
+QMAKE_TARGET  = phong
+DESTDIR       = 
+TARGET        = phong
+
+
+first: all
+####### Build rules
+
+$(TARGET):  $(OBJECTS)  
+	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
+
+Makefile: phong.pro /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake.conf /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/spec_pre.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/unix.conf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/linux.conf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/sanitize.conf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/gcc-base.conf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/gcc-base-unix.conf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/g++-base.conf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/common/g++-unix.conf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/qconfig.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3danimation.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3danimation_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dcore.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dcore_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dextras.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dextras_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dinput.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dinput_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dlogic.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dlogic_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquick.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquick_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickanimation.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickanimation_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickextras.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickextras_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickinput.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickinput_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickrender.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickrender_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickscene2d.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3dquickscene2d_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3drender.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_3drender_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_accessibility_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_bluetooth.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_bluetooth_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_bootstrap_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_charts.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_charts_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_concurrent.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_concurrent_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_core.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_core_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_datavisualization.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_datavisualization_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_dbus.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_dbus_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_designer.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_designer_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_designercomponents_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_devicediscovery_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_egl_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_eglfsdeviceintegration_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_eventdispatcher_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_fb_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_fontdatabase_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_gamepad.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_gamepad_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_glx_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_gui.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_gui_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_help.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_help_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_input_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_kms_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_linuxaccessibility_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_location.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_location_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_multimedia.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_multimedia_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_multimediawidgets.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_multimediawidgets_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_network.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_network_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_networkauth.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_networkauth_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_nfc.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_nfc_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_opengl.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_opengl_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_openglextensions.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_openglextensions_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_packetprotocol_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_platformcompositor_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_positioning.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_positioning_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_printsupport.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_printsupport_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_purchasing.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_purchasing_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_qml.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_qml_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_qmldebug_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_qmldevtools_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_qmltest.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_qmltest_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_qtmultimediaquicktools_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_quick.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_quick_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_quickcontrols2.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_quickcontrols2_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_quickparticles_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_quicktemplates2_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_quickwidgets.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_quickwidgets_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_remoteobjects.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_remoteobjects_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_repparser.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_repparser_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_script.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_script_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_scripttools.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_scripttools_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_scxml.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_scxml_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_sensors.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_sensors_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_serialbus.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_serialbus_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_serialport.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_serialport_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_service_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_sql.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_sql_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_svg.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_svg_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_testlib.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_testlib_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_texttospeech.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_texttospeech_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_theme_support_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_uiplugin.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_uitools.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_uitools_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webchannel.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webchannel_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webengine.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webengine_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webenginecore.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webenginecore_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webenginecoreheaders_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webenginewidgets.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webenginewidgets_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_websockets.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_websockets_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webview.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_webview_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_widgets.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_widgets_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_x11extras.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_x11extras_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_xml.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_xml_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_xmlpatterns.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/modules/qt_lib_xmlpatterns_private.pri \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/qt_functions.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/qt_config.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake.conf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/exclusive_builds.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/toolchain.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/default_pre.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/resolve_config.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/default_post.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/warn_on.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/qt.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/resources.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/moc.prf \
+		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/unix/opengl.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/unix/thread.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/qmake_use.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/file_copies.prf \
@@ -263,8 +438,6 @@ Makefile: phong.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/yacc.prf \
 		/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/lex.prf \
 		phong.pro \
-		/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5OpenGL.prl \
-		/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Widgets.prl \
 		/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Gui.prl \
 		/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Core.prl
 	$(QMAKE) -o Makefile phong.pro
@@ -428,12 +601,10 @@ Makefile: phong.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/qt_config.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake.conf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/spec_post.prf:
-.qmake.cache:
+.qmake.stash:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/exclusive_builds.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/toolchain.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/default_pre.prf:
-/home/s4903789/NGL/UseNGL.pri:
-/home/s4903789/workshops/rendering_workshops/common/common.pri:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/resolve_config.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/default_post.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/warn_on.prf:
@@ -441,7 +612,6 @@ Makefile: phong.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/resources.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/moc.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/unix/opengl.prf:
-/opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/uic.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/unix/thread.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/qmake_use.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/file_copies.prf:
@@ -450,8 +620,6 @@ Makefile: phong.pro .qmake.cache /opt/Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/yacc.prf:
 /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/lex.prf:
 phong.pro:
-/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5OpenGL.prl:
-/opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Widgets.prl:
 /opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Gui.prl:
 /opt/Qt5.9.0/5.9/gcc_64/lib/libQt5Core.prl:
 qmake: FORCE
@@ -500,14 +668,12 @@ compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
 moc_predefs.h: /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/data/dummy.cpp
-	g++ -pipe -msse -msse2 -msse3 -march=native -march=native -g -std=gnu++11 -Wall -W -Wno-unused-parameter -dM -E -o moc_predefs.h /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/data/dummy.cpp
+	g++ -pipe -O2 -Wall -W -dM -E -o moc_predefs.h /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/data/dummy.cpp
 
 compiler_moc_header_make_all:
 compiler_moc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all:
-compiler_uic_clean:
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
 compiler_yacc_impl_make_all:
@@ -518,292 +684,20 @@ compiler_clean: compiler_moc_predefs_clean
 
 ####### Compile
 
-obj/main.o: src/main.cpp src/shaderscene.h \
-		../common/include/scene.h \
-		../common/include/glinclude.h \
-		/home/s4903789/NGL/include/ngl/Obj.h \
-		/home/s4903789/NGL/include/ngl/Types.h \
-		/home/s4903789/NGL/include/ngl/glew.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL/QGLContext \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL/qgl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qopengl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtguiglobal.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qglobal.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qconfig-bootstrapped.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qconfig.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qtcore-config.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsystemdetection.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qprocessordetection.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcompilerdetection.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qtypeinfo.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsysinfo.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qlogging.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qflags.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qatomic.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qbasicatomic.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qatomic_bootstrap.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qgenericatomic.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qatomic_cxx11.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qatomic_msvc.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qglobalstatic.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qmutex.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qnumeric.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qversiontagging.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtgui-config.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qt_windows.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qopengles2ext.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qopenglext.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qwidget.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qtwidgetsglobal.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qtwidgets-config.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qwindowdefs.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qobjectdefs.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qnamespace.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qobjectdefs_impl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qwindowdefs_win.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qobject.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qstring.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qchar.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qbytearray.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qrefcount.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qarraydata.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qstringbuilder.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qlist.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qalgorithms.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qiterator.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qhashfunctions.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qpair.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qbytearraylist.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qstringlist.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qregexp.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qstringmatcher.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcoreevent.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qscopedpointer.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qmetatype.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qvarlengtharray.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcontainerfwd.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qobject_impl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qmargins.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpaintdevice.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qrect.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsize.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qpoint.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpalette.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qcolor.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qrgb.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qrgba64.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qbrush.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qvector.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qmatrix.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpolygon.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qregion.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qdatastream.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qiodevice.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qline.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtransform.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpainterpath.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qimage.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpixelformat.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpixmap.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsharedpointer.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qshareddata.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qhash.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsharedpointer_impl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qfont.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qfontmetrics.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qfontinfo.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qsizepolicy.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qcursor.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qkeysequence.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qevent.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qvariant.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qmap.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qdebug.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qtextstream.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qlocale.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qset.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcontiguouscache.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qurl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qurlquery.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qfile.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qfiledevice.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qvector2d.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtouchdevice.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpaintengine.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpainter.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtextoption.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpen.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL/qglcolormap.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL/qtopenglglobal.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/QSurfaceFormat \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qsurfaceformat.h \
-		/home/s4903789/NGL/include/ngl/Texture.h \
-		/home/s4903789/NGL/include/ngl/Image.h \
-		/home/s4903789/NGL/include/ngl/Colour.h \
-		/home/s4903789/NGL/include/ngl/Vec4.h \
-		/home/s4903789/NGL/include/ngl/Vec2.h \
-		/home/s4903789/NGL/include/ngl/Vec3.h \
-		/home/s4903789/NGL/include/ngl/AbstractMesh.h \
-		/home/s4903789/NGL/include/ngl/BBox.h \
-		/home/s4903789/NGL/include/ngl/AbstractVAO.h \
-		/home/s4903789/NGL/include/ngl/RibExport.h \
-		/home/s4903789/NGL/include/ngl/NGLassert.h \
-		../common/include/fixedcamera.h \
-		/home/s4903789/workshops/rendering_workshops/common/include/camera.h \
-		../common/include/trackballcamera.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/main.o src/main.cpp
+main.o: src/main.cpp src/shaderscene.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o src/main.cpp
 
-obj/camera.o: ../common/src/camera.cpp /home/s4903789/workshops/rendering_workshops/common/include/camera.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/camera.o ../common/src/camera.cpp
+camera.o: ../common/src/camera.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o camera.o ../common/src/camera.cpp
 
-obj/scene.o: ../common/src/scene.cpp ../common/include/scene.h \
-		../common/include/glinclude.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/scene.o ../common/src/scene.cpp
+scene.o: ../common/src/scene.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o scene.o ../common/src/scene.cpp
 
-obj/trackballcamera.o: ../common/src/trackballcamera.cpp ../common/include/trackballcamera.h \
-		/home/s4903789/workshops/rendering_workshops/common/include/camera.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/trackballcamera.o ../common/src/trackballcamera.cpp
+trackballcamera.o: ../common/src/trackballcamera.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o trackballcamera.o ../common/src/trackballcamera.cpp
 
-obj/shaderscene.o: src/shaderscene.cpp src/shaderscene.h \
-		../common/include/scene.h \
-		../common/include/glinclude.h \
-		/home/s4903789/NGL/include/ngl/Obj.h \
-		/home/s4903789/NGL/include/ngl/Types.h \
-		/home/s4903789/NGL/include/ngl/glew.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL/QGLContext \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL/qgl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qopengl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtguiglobal.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qglobal.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qconfig-bootstrapped.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qconfig.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qtcore-config.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsystemdetection.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qprocessordetection.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcompilerdetection.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qtypeinfo.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsysinfo.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qlogging.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qflags.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qatomic.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qbasicatomic.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qatomic_bootstrap.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qgenericatomic.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qatomic_cxx11.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qatomic_msvc.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qglobalstatic.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qmutex.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qnumeric.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qversiontagging.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtgui-config.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qt_windows.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qopengles2ext.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qopenglext.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qwidget.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qtwidgetsglobal.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qtwidgets-config.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qwindowdefs.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qobjectdefs.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qnamespace.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qobjectdefs_impl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qwindowdefs_win.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qobject.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qstring.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qchar.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qbytearray.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qrefcount.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qarraydata.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qstringbuilder.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qlist.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qalgorithms.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qiterator.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qhashfunctions.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qpair.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qbytearraylist.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qstringlist.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qregexp.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qstringmatcher.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcoreevent.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qscopedpointer.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qmetatype.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qvarlengtharray.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcontainerfwd.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qobject_impl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qmargins.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpaintdevice.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qrect.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsize.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qpoint.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpalette.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qcolor.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qrgb.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qrgba64.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qbrush.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qvector.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qmatrix.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpolygon.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qregion.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qdatastream.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qiodevice.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qline.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtransform.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpainterpath.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qimage.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpixelformat.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpixmap.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsharedpointer.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qshareddata.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qhash.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qsharedpointer_impl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qfont.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qfontmetrics.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qfontinfo.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtWidgets/qsizepolicy.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qcursor.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qkeysequence.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qevent.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qvariant.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qmap.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qdebug.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qtextstream.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qlocale.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qset.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qcontiguouscache.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qurl.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qurlquery.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qfile.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtCore/qfiledevice.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qvector2d.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtouchdevice.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpaintengine.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpainter.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qtextoption.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qpen.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL/qglcolormap.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtOpenGL/qtopenglglobal.h \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/QSurfaceFormat \
-		/opt/Qt5.9.0/5.9/gcc_64/include/QtGui/qsurfaceformat.h \
-		/home/s4903789/NGL/include/ngl/Texture.h \
-		/home/s4903789/NGL/include/ngl/Image.h \
-		/home/s4903789/NGL/include/ngl/Colour.h \
-		/home/s4903789/NGL/include/ngl/Vec4.h \
-		/home/s4903789/NGL/include/ngl/Vec2.h \
-		/home/s4903789/NGL/include/ngl/Vec3.h \
-		/home/s4903789/NGL/include/ngl/AbstractMesh.h \
-		/home/s4903789/NGL/include/ngl/BBox.h \
-		/home/s4903789/NGL/include/ngl/AbstractVAO.h \
-		/home/s4903789/NGL/include/ngl/RibExport.h \
-		/home/s4903789/NGL/include/ngl/NGLassert.h \
-		/home/s4903789/NGL/include/ngl/NGLInit.h \
-		/home/s4903789/NGL/include/ngl/Singleton.h \
-		/home/s4903789/NGL/include/ngl/VAOPrimitives.h \
-		/home/s4903789/NGL/include/ngl/ShaderLib.h \
-		/home/s4903789/NGL/include/ngl/Shader.h \
-		/home/s4903789/NGL/include/ngl/ShaderProgram.h \
-		/home/s4903789/NGL/include/ngl/Util.h \
-		/home/s4903789/NGL/include/ngl/Mat3.h \
-		/home/s4903789/NGL/include/ngl/Mat4.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/shaderscene.o src/shaderscene.cpp
+shaderscene.o: src/shaderscene.cpp src/shaderscene.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o shaderscene.o src/shaderscene.cpp
 
 ####### Install
 

@@ -51,7 +51,6 @@ in vec4 FragmentPosition;
 
 
 void main() {
-
     // Transform your input normal
     vec3 n = normalize(FragNormal );
     
@@ -61,24 +60,47 @@ void main() {
     vec3 s = normalize( vec3(Light.Position) - p); //this is s for the h equation
 
     // Calculate the vertex position (view vector)
-    vec3 v = normalize(vec3(-p));
+    vec3 v = vec3(0.0f,0.0f,1.0f);
 
     // Reflect the light about the surface normal
     vec3 r = reflect( -s, n );
 
     //creating a roughness value
-   /* vec3 h = (v+s)/abs(v+s);
-    float m = 0.5;
-    float mSquared = m*m;
-    float NdotH = dot(n, h); //dot product of surface and light position
-    float r1  = 1.0 / (4.0 * mSquared * pow(NdotH, 4.0));
-    float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
-    float roughness = r1 * exp(r2);*/
+    vec3 h = normalize(v+s);
 
     //computing h
     //s = negative direction of incoming light
     //v = direction of outgoing light
     //h = (v+s)/abs(v+s)
+        
+    // Distribution function
+    float m = 0.1;
+    float mSquared = m*m;
+    float NdotH = dot(n, h); //dot product of surface and light position
+    float VdotH = dot(v, h); //dot product of surface and light position
+    float NdotV = dot(n, v); //dot product of surface and light position
+    float NdotL = dot(n, s); //dot product of surface and light position
+    
+    float r1  = 1.0 / (4.0f * mSquared * pow(NdotH, 4.0f));
+    float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
+    float D = r1 * exp(r2);
+    
+    // Geometric attenuation    
+    float NH2 = 2.0 * NdotH;
+    float eps = 0.0001f;
+    float invVdotH = (VdotH > eps)?(1.0 / VdotH):1.0;    
+    float g1 = (NH2 * NdotV) * invVdotH;
+    float g2 = (NH2 * NdotL) * invVdotH;
+    float G = min(1.0, min(g1, g2));   
+
+    // Schlick approximation
+    float F0 = 0.1; // Fresnel reflectance at normal incidence
+    float F_r = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
+    F0 = 0.7; // Fresnel reflectance at normal incidence
+    float F_g = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
+    F0 = 0.6; // Fresnel reflectance at normal incidence
+    float F_b = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
+
     //second attempt
     /*vec3 h = (v+s)/abs(v+s);
     float alpha = acos(dot(n,h));
@@ -88,25 +110,18 @@ void main() {
     float mpow = pow(m, 2);
 
     float beckmann = (exp(-tanPow / mpow)) / (3.1415936*mpow*cosPow);*/
-    //third attempt
-
     
-    
-    
-    //first attemp
-    /*float m = 0.1;
-    float mSquared = m*m;
-    float NdotH = dot(n, h); //dot product of surface and light position
-    float r1  = 1.0 / (4.0 * mSquared * pow(NdotH, 4.0));
-    float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
-    float roughness = r1 * exp(r2);*/
-
     // Compute the light from the ambient, diffuse and specular components
+    
+    vec3 spec = G * vec3(F_r, F_g, F_b) * D / NdotV;
+    //float spec = G * F * D / NdotV;
     vec3 LightIntensity = (
             Light.La * Material.Ka +
-            Light.Ld * Material.Kd * max( dot(s, n), 0.0 ) +
-            Light.Ls * Material.Ks * pow( max( dot(r,v), 0.0 ), Material.Shininess));
+            //Light.Ld * Material.Kd * max( dot(s, n), 0.0 ) +
+            Light.Ls * Material.Ks * spec);                
+
+            
     // Set the output color of our current pixel
-    FragColor = vec4(colour* LightIntensity,1.0);//*roughness;
+    FragColor = vec4(LightIntensity,1.0);
 }
 

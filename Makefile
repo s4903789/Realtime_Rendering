@@ -36,7 +36,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = environment1.0.0
-DISTDIR = /home/lfreeman/rendering_workshops/environment/obj/environment1.0.0
+DISTDIR = /home/lfreeman/Realtime_Rendering/obj/environment1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/home/lfreeman/NGL/lib -Wl,-z,origin -Wl,-rpath,\$$ORIGIN/L/home/lfreeman/NGL/lib -Wl,-rpath,/home/lfreeman/NGL/lib -Wl,-rpath,/home/lfreeman/Qt/5.9/gcc_64/lib
 LIBS          = $(SUBLIBS) -lXi -ldl -lX11 -lXrandr -lXinerama -lXcursor -lXxf86vm -lglfw3 -lGLEW -lGLU /usr/local/lib//libnoise.a -L/usr/local/lib -L/home/lfreeman/NGL/lib -l NGL -L/home/lfreeman/Qt/5.9/gcc_64/lib -lQt5OpenGL -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
@@ -53,10 +53,10 @@ OBJECTS_DIR   = obj/
 
 SOURCES       = src/main.cpp \
 		src/envscene.cpp \
-		../common/src/camera.cpp \
-		../common/src/fixedcamera.cpp \
-		../common/src/scene.cpp \
-		../common/src/trackballcamera.cpp 
+		src/camera.cpp \
+		src/fixedcamera.cpp \
+		src/scene.cpp \
+		src/trackballcamera.cpp 
 OBJECTS       = obj/main.o \
 		obj/envscene.o \
 		obj/camera.o \
@@ -65,16 +65,17 @@ OBJECTS       = obj/main.o \
 		obj/trackballcamera.o
 DIST          = $OTHER_FILES \
 		.qmake.stash \
+		common.pri \
 		environment.pro src/envscene.h \
-		../common/include/camera.h \
-		../common/include/fixedcamera.h \
-		../common/include/scene.h \
-		../common/include/trackballcamera.h src/main.cpp \
+		include/camera.h \
+		include/fixedcamera.h \
+		include/scene.h \
+		include/trackballcamera.h src/main.cpp \
 		src/envscene.cpp \
-		../common/src/camera.cpp \
-		../common/src/fixedcamera.cpp \
-		../common/src/scene.cpp \
-		../common/src/trackballcamera.cpp
+		src/camera.cpp \
+		src/fixedcamera.cpp \
+		src/scene.cpp \
+		src/trackballcamera.cpp
 QMAKE_TARGET  = environment
 DESTDIR       = 
 TARGET        = environment
@@ -252,7 +253,7 @@ Makefile: environment.pro .qmake.cache /home/lfreeman/Qt/5.9/gcc_64/mkspecs/linu
 		/home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/toolchain.prf \
 		/home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/default_pre.prf \
 		/home/lfreeman/NGL/UseNGL.pri \
-		/home/lfreeman/rendering_workshops/common/common.pri \
+		common.pri \
 		/home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/resolve_config.prf \
 		/home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/default_post.prf \
 		/home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/warn_on.prf \
@@ -440,7 +441,7 @@ Makefile: environment.pro .qmake.cache /home/lfreeman/Qt/5.9/gcc_64/mkspecs/linu
 /home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/toolchain.prf:
 /home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/default_pre.prf:
 /home/lfreeman/NGL/UseNGL.pri:
-/home/lfreeman/rendering_workshops/common/common.pri:
+common.pri:
 /home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/resolve_config.prf:
 /home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/default_post.prf:
 /home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/warn_on.prf:
@@ -476,8 +477,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /home/lfreeman/Qt/5.9/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents src/envscene.h ../common/include/camera.h ../common/include/fixedcamera.h ../common/include/scene.h ../common/include/trackballcamera.h $(DISTDIR)/
-	$(COPY_FILE) --parents src/main.cpp src/envscene.cpp ../common/src/camera.cpp ../common/src/fixedcamera.cpp ../common/src/scene.cpp ../common/src/trackballcamera.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents src/envscene.h include/camera.h include/fixedcamera.h include/scene.h include/trackballcamera.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/main.cpp src/envscene.cpp src/camera.cpp src/fixedcamera.cpp src/scene.cpp src/trackballcamera.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -653,11 +654,11 @@ obj/main.o: src/main.cpp src/envscene.h \
 		/home/lfreeman/NGL/include/ngl/AbstractVAO.h \
 		/home/lfreeman/NGL/include/ngl/RibExport.h \
 		/home/lfreeman/NGL/include/ngl/NGLassert.h \
-		../common/include/scene.h \
-		../common/include/glinclude.h \
-		../common/include/fixedcamera.h \
-		/home/lfreeman/rendering_workshops/common/include/camera.h \
-		../common/include/trackballcamera.h
+		include/scene.h \
+		include/glinclude.h \
+		include/fixedcamera.h \
+		include/camera.h \
+		include/trackballcamera.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/main.o src/main.cpp
 
 obj/envscene.o: src/envscene.cpp src/envscene.h \
@@ -788,8 +789,8 @@ obj/envscene.o: src/envscene.cpp src/envscene.h \
 		/home/lfreeman/NGL/include/ngl/AbstractVAO.h \
 		/home/lfreeman/NGL/include/ngl/RibExport.h \
 		/home/lfreeman/NGL/include/ngl/NGLassert.h \
-		../common/include/scene.h \
-		../common/include/glinclude.h \
+		include/scene.h \
+		include/glinclude.h \
 		/home/lfreeman/NGL/include/ngl/NGLInit.h \
 		/home/lfreeman/NGL/include/ngl/Singleton.h \
 		/home/lfreeman/NGL/include/ngl/VAOPrimitives.h \
@@ -801,20 +802,20 @@ obj/envscene.o: src/envscene.cpp src/envscene.h \
 		/home/lfreeman/NGL/include/ngl/Mat4.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/envscene.o src/envscene.cpp
 
-obj/camera.o: ../common/src/camera.cpp /home/lfreeman/rendering_workshops/common/include/camera.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/camera.o ../common/src/camera.cpp
+obj/camera.o: src/camera.cpp /home/lfreeman/rendering_examples/common/include/camera.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/camera.o src/camera.cpp
 
-obj/fixedcamera.o: ../common/src/fixedcamera.cpp ../common/include/fixedcamera.h \
-		/home/lfreeman/rendering_workshops/common/include/camera.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/fixedcamera.o ../common/src/fixedcamera.cpp
+obj/fixedcamera.o: src/fixedcamera.cpp include/fixedcamera.h \
+		include/camera.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/fixedcamera.o src/fixedcamera.cpp
 
-obj/scene.o: ../common/src/scene.cpp ../common/include/scene.h \
-		../common/include/glinclude.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/scene.o ../common/src/scene.cpp
+obj/scene.o: src/scene.cpp /home/lfreeman/rendering_examples/common/include/scene.h \
+		include/glinclude.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/scene.o src/scene.cpp
 
-obj/trackballcamera.o: ../common/src/trackballcamera.cpp ../common/include/trackballcamera.h \
-		/home/lfreeman/rendering_workshops/common/include/camera.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/trackballcamera.o ../common/src/trackballcamera.cpp
+obj/trackballcamera.o: src/trackballcamera.cpp /home/lfreeman/rendering_examples/common/include/trackballcamera.h \
+		/home/lfreeman/rendering_examples/common/include/camera.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/trackballcamera.o src/trackballcamera.cpp
 
 ####### Install
 

@@ -30,7 +30,7 @@ void EnvScene::initGL() noexcept {
     shader->use("EnvironmentProgram");
     // Initialise our environment map here
     initEnvironment();
-    initTexture(1, m_glossMapTex, "/home/lfreeman/rendering_workshops/environment/images/gloss.png");
+    initTexture(1, m_glossMapTex, "images/gloss.png");
     shader->setUniform("glossMap", 1);
     /*initTexture(2,m_bananaTex, "/home/lfreeman/rendering_workshops/environment/images/une_banane.jpg");
     shader->setUniform("banana",2);
@@ -39,7 +39,7 @@ void EnvScene::initGL() noexcept {
 
     //Initialising the obj for the banana along with its texture
     
-    m_mesh.reset(new ngl::Obj("/home/lfreeman/Realtime_Rendering_Banana_Resources/small_banana_obj.obj", "/home/lfreeman/Realtime_Rendering_Banana_Resources/banana_hi_poly.png"));
+    m_mesh.reset(new ngl::Obj("models/small_banana_obj.obj", "textures/banana_hi_poly.png"));
     std::cout<<"attempting to assign mesh \n";
     m_mesh->createVAO();
     std::cout<<"Vao made \n";

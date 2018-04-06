@@ -1,5 +1,5 @@
 // Must include our scene first because of GL dependency order
-#include "shaderscene.h"
+#include "envscene.h"
 
 // This will probably already be included by a scene file
 #include "glinclude.h"
@@ -10,10 +10,9 @@
 #include <GLFW/glfw3.h>
 
 /// A scene object
-ShaderScene g_scene;
+EnvScene g_scene;
 
 /// A camera object
-//FixedCamera g_camera;
 TrackballCamera g_camera;
 
 /******************************************************************
@@ -62,28 +61,16 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
  * @param key The key that was pressed
  * @param action GLFW code for the action (GLFW_PRESS or GLFW_RELEASE)
  * @param mods Other keys which are currently being held down (e.g. GLFW_CTRL)
- * In this implementation we handle the numerical keys to allow the user to select which
- * shader method is currently active.
  */
 void key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int mods)
 {
     // Escape exits the application
-    if (action == GLFW_PRESS) {
-        switch(key) {
-        case (GLFW_KEY_ESCAPE):
-            glfwSetWindowShouldClose(window, true); break;
-        case (GLFW_KEY_1):
-            g_scene.setShaderMethod(ShaderScene::SHADER_GOURAUD); break;
-        case (GLFW_KEY_2):
-            g_scene.setShaderMethod(ShaderScene::SHADER_PHONG); break;
-        case (GLFW_KEY_3):
-            g_scene.setShaderMethod(ShaderScene::SHADER_COOKTORRANCE); break;
-        case (GLFW_KEY_4):
-            g_scene.setShaderMethod(ShaderScene::SHADER_TOON); break;
-        }
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);        
+    } else {
+        // Any other keypress should be handled by our camera
+        g_camera.handleKey(key, (action == GLFW_PRESS) );
     }
-    // Any other keypress should be handled by our camera
-    g_camera.handleKey(key, (action == GLFW_PRESS) );
 }
 
 /**
@@ -96,10 +83,15 @@ void resize_callback(GLFWwindow */*window*/, int width, int height) {
     g_scene.resizeGL(width,height);
 }
 
+
+/**
+ * @brief main The main application loop
+ * @return Whatever glfw returns when you glfwTerminate()
+ */
 int main() {
     if (!glfwInit()) {
         // Initialisation failed
-        glfwTerminate();
+        glfwTerminate();        
     }
     
     // Register error callback
@@ -107,7 +99,7 @@ int main() {
 
     // Set our OpenGL version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
     // Create our window in a platform agnostic manner
     int width = 1024; int height = 768;

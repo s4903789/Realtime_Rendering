@@ -33,9 +33,9 @@ void EnvScene::initGL() noexcept {
     initTexture(1, m_glossMapTex, "textures/banana_hi_poly.png");
     shader->setUniform("glossMap", 1);
     /*initTexture(2,m_bananaTex, "/home/lfreeman/rendering_workshops/environment/images/une_banane.jpg");
-    shader->setUniform("banana",2);
-    initTexture(3, m_bananaNormal, "/home/lfreeman/rendering_workshops/environment/images/bump2electricboogaloo.jpg");
-    shader->setUniform("normal",3);*/
+    shader->setUniform("banana",2);*/
+    initTexture(3, m_bananaNormal, "images/NormalMap(1).jpg");
+    shader->setUniform("normal",3);
 
     //Initialising the obj for the banana along with its texture
     

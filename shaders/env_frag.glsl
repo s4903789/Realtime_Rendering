@@ -83,10 +83,11 @@ void main () {
     // Calculate the eye vector
     vec3 v = normalize(vec3(-FragmentPosition));
 
-    /*vec3 normalValue = normalize(texture(normal, FragmentTexCoord).xyz);
+    vec2 minusZ = vec2(FragmentTexCoord.x, -FragmentTexCoord.y);
+    vec3 normalValue = normalize(texture(normal, minusZ).xyz);
     float cosAngle = dot(n, normalValue);
     float angle = acos(cosAngle);
-    n = rotate(v,n,angle);*/
+    n = rotate(v,n,angle);
     //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
     
     /*******************************************************************************/

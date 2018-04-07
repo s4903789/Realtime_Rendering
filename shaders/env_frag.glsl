@@ -103,6 +103,13 @@ void main () {
 
     // Distribution function
     float m = 0.2;
+    /***********************************************************************/
+    //setting up roughness for when it encounters speckles, it should be rougher
+    vec4 roughColourCheck = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+    if(roughColourCheck.r < 0.57)
+    {
+        m = 1.0;
+    }
     float mSquared = m*m;
     float NdotH = dot(n, h); //dot product of surface and light position
     float VdotH = dot(v, h); //dot product of surface and light position
@@ -122,11 +129,11 @@ void main () {
     float G = min(1.0, min(g1, g2));   
 
     // Schlick approximation
-    float F0 = 0.9; // Fresnel reflectance at normal incidence
+    float F0 = 1.0; // Fresnel reflectance at normal incidence
     float F_r = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 0.9; // Fresnel reflectance at normal incidence
+    F0 = 1.0; // Fresnel reflectance at normal incidence
     float F_g = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 0.9; // Fresnel reflectance at normal incidence
+    F0 = 1.0; // Fresnel reflectance at normal incidence
     float F_b = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
     
     // Compute the light from the ambient, diffuse and specular components

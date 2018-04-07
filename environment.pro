@@ -6,6 +6,7 @@ include(common.pri)
 TARGET = environment
 
 # Input
+INCLUDEPATH += ./include
 HEADERS += src/envscene.h \
            include/camera.h \
            include/fixedcamera.h \

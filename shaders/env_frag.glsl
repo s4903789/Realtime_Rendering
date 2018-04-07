@@ -83,10 +83,10 @@ void main () {
     // Calculate the eye vector
     vec3 v = normalize(vec3(-FragmentPosition));
 
-    vec3 normalValue = normalize(texture(normal, FragmentTexCoord).xyz);
+    /*vec3 normalValue = normalize(texture(normal, FragmentTexCoord).xyz);
     float cosAngle = dot(n, normalValue);
     float angle = acos(cosAngle);
-    n = rotate(v,n,angle);
+    n = rotate(v,n,angle);*/
     //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
     
     /*******************************************************************************/
@@ -152,6 +152,10 @@ void main () {
     //lodMapColour = lodMapColour + texture(banana, FragmentTexCoord);
     // Next you will need to used a gloss map to determine the level of "smudge"
     //FragColour = vec4(lodMapColour.xyz*LightIntensity,1.0); //colour;
-    FragColour = vec4(bananaDiffuse.xyz * LightIntensity,1.0);
+    
+    //FragColour = vec4(bananaDiffuse.xyz * LightIntensity,1.0);
+
+    FragColour = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+    FragColour *= vec4(LightIntensity,1.0);
 }
 

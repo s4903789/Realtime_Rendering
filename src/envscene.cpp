@@ -30,7 +30,7 @@ void EnvScene::initGL() noexcept {
     shader->use("EnvironmentProgram");
     // Initialise our environment map here
     initEnvironment();
-    initTexture(1, m_glossMapTex, "images/gloss.png");
+    initTexture(1, m_glossMapTex, "textures/banana_hi_poly.png");
     shader->setUniform("glossMap", 1);
     /*initTexture(2,m_bananaTex, "/home/lfreeman/rendering_workshops/environment/images/une_banane.jpg");
     shader->setUniform("banana",2);

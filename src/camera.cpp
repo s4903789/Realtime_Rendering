@@ -1,4 +1,4 @@
-#include "/home/lfreeman/rendering_examples/common/include/camera.h"
+#include "camera.h"
 
 Camera::Camera() :
     m_fovy(glm::pi<float>() * 0.25f),

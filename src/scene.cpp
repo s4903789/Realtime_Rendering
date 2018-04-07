@@ -1,4 +1,4 @@
-#include "/home/lfreeman/rendering_examples/common/include/scene.h"
+#include "scene.h"
 
 // Needed for memset
 #include <string.h>

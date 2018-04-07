@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = -DQT5BUILD -DNGL_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -msse -msse2 -msse3 -march=native -march=native -g -std=gnu++11 -Wall -W -Wno-unused-parameter -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I/home/lfreeman/NGL/include -I../common/include -I/home/lfreeman/libigl/include -I/home/lfreeman/eigen -I/usr/local/lib/noise/src -I/home/lfreeman/NGL/include -I/home/lfreeman/Qt/5.9/gcc_64/include -I/home/lfreeman/Qt/5.9/gcc_64/include/QtOpenGL -I/home/lfreeman/Qt/5.9/gcc_64/include/QtWidgets -I/home/lfreeman/Qt/5.9/gcc_64/include/QtGui -I/home/lfreeman/Qt/5.9/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I/home/lfreeman/Qt/5.9/gcc_64/mkspecs/linux-g++
+INCPATH       = -I. -I/home/lfreeman/NGL/include -I../common/include -I/home/lfreeman/libigl/include -I/home/lfreeman/eigen -I/usr/local/lib/noise/src -I/home/lfreeman/NGL/include -Iinclude -I/home/lfreeman/Qt/5.9/gcc_64/include -I/home/lfreeman/Qt/5.9/gcc_64/include/QtOpenGL -I/home/lfreeman/Qt/5.9/gcc_64/include/QtWidgets -I/home/lfreeman/Qt/5.9/gcc_64/include/QtGui -I/home/lfreeman/Qt/5.9/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I/home/lfreeman/Qt/5.9/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/lfreeman/Qt/5.9/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -802,19 +802,19 @@ obj/envscene.o: src/envscene.cpp src/envscene.h \
 		/home/lfreeman/NGL/include/ngl/Mat4.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/envscene.o src/envscene.cpp
 
-obj/camera.o: src/camera.cpp /home/lfreeman/rendering_examples/common/include/camera.h
+obj/camera.o: src/camera.cpp include/camera.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/camera.o src/camera.cpp
 
 obj/fixedcamera.o: src/fixedcamera.cpp include/fixedcamera.h \
 		include/camera.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/fixedcamera.o src/fixedcamera.cpp
 
-obj/scene.o: src/scene.cpp /home/lfreeman/rendering_examples/common/include/scene.h \
+obj/scene.o: src/scene.cpp include/scene.h \
 		include/glinclude.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/scene.o src/scene.cpp
 
-obj/trackballcamera.o: src/trackballcamera.cpp /home/lfreeman/rendering_examples/common/include/trackballcamera.h \
-		/home/lfreeman/rendering_examples/common/include/camera.h
+obj/trackballcamera.o: src/trackballcamera.cpp include/trackballcamera.h \
+		include/camera.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/trackballcamera.o src/trackballcamera.cpp
 
 ####### Install

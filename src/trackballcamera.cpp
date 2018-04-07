@@ -1,4 +1,4 @@
-#include "/home/lfreeman/rendering_examples/common/include/trackballcamera.h"
+#include "trackballcamera.h"
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/constants.hpp>
 

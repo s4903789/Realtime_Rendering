@@ -55,8 +55,8 @@ uniform LightInfo Light = LightInfo(
             vec4(2.0, 2.0, 10.0, 1.0),   // position
             vec3(1.0, 1.0, 1.0),        // La
             vec3(1.0, 1.0, 1.0),        // Ld
-            vec3(1.0, 1.0, 1.0)         // Ls
-            //vec3(0.05, 0.05, 0.05)
+            //vec3(1.0, 1.0, 1.0)         // Ls
+            vec3(0.1, 0.1, 0.1)
             );
 
 // The material properties of our object
@@ -238,7 +238,8 @@ void main () {
     
     vec3 spec = G * vec3(F_r, F_g, F_b) * D / NdotV;
     ///////////////////////////////////////////////////
-    float noise = sumOctave(FragmentTexCoord, 12, 0.5f, 10.0f, 0.0f, 1.0f);
+    //float noise = sumOctave(FragmentTexCoord, 12, 0.5f, 10.0f, 0.0f, 1.0f);
+    float noise = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
     //float spec = G * F * D / NdotV;
     spec *= noise * noise;
     vec3 LightIntensity = (
@@ -262,10 +263,38 @@ void main () {
     // Next you will need to used a gloss map to determine the level of "smudge"
     //FragColour = vec4(lodMapColour.xyz*LightIntensity,1.0); //colour;
 
-    FragColour = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
-    FragColour *= vec4(LightIntensity,1.0);
+
+    float speckleNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 20.0f, 0.0f, 1.0f); //iterations, persistence, frequency, low, high
+    float maskNoise1 = sumOctave(FragmentTexCoord, 12, 0.5f, 30.0f, 0.0f, 1.0f);
+    float maskNoise2 = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
+    speckleNoise = speckleNoise * maskNoise1 * maskNoise2;
+    vec3 speckleColour = vec3(1, 0, 0);
+    if (speckleNoise > 0.5)
+    {
+      speckleNoise = 1;
+    }
+    speckleNoise*= 2;
+    vec3 speckleNoiseColoured = speckleNoise * speckleColour;
     
+    FragColour = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+    
+    //FragColour -= (speckleNoiseColoured, speckleNoise);
+    if (speckleNoise > 0.5f)
+    {
+      FragColour = vec4(speckleNoiseColoured, 1.f);
+    }
+    //FragColour+= vec4(speckleNoiseColoured, 1.0f);
+    
+
+    //multiply by -1 to invert
+    
+    FragColour *= vec4(LightIntensity,1.0);
+    //to layer noise over banana current colour, multiply light intensity by noise
+
+
+
     //testing noise
-    //FragColour = vec4(vec3(noise), 1.0);
+   // FragColour = vec4(vec3(speckleNoiseColoured), 1.0);
+    //FragColour *= vec4(LightIntensity, 1.0);
 }
 

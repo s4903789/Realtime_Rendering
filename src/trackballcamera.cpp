@@ -19,7 +19,7 @@ TrackballCamera::TrackballCamera() :
 {
     // Set up default camera targets and eye positions
     m_target = glm::dvec3(0.0, 0.0, 0.0);
-    m_eye = glm::dvec3(0.0, 0.0, 1.0);
+    m_eye = glm::dvec3(0.0, 0.0, 5.0);
     m_transformedEye = m_eye;
 }
 

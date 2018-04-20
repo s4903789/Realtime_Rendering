@@ -204,10 +204,10 @@ void main () {
     /***********************************************************************/
     //setting up roughness for when it encounters speckles, it should be rougher
     vec4 roughColourCheck = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
-    if(roughColourCheck.r < 0.57)
+    /*if(roughColourCheck.r < 0.57)
     {
         m = 1.0;
-    }
+    }*/
     float mSquared = m*m;
     float NdotH = dot(n, h); //dot product of surface and light position
     float VdotH = dot(v, h); //dot product of surface and light position
@@ -268,33 +268,29 @@ void main () {
     float maskNoise1 = sumOctave(FragmentTexCoord, 12, 0.5f, 30.0f, 0.0f, 1.0f);
     float maskNoise2 = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
     speckleNoise = speckleNoise * maskNoise1 * maskNoise2;
-    vec3 speckleColour = vec3(1, 0, 0);
-    if (speckleNoise > 0.5)
-    {
-      speckleNoise = 1;
-    }
+    vec3 speckleColour = vec3(0.6, 0.352, 0.03);
     speckleNoise*= 2;
+    if (speckleNoise > 1.0f)
+    {
+      speckleNoise = 1.0f; 
+    }
     vec3 speckleNoiseColoured = speckleNoise * speckleColour;
     
     FragColour = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
     
     //FragColour -= (speckleNoiseColoured, speckleNoise);
-    if (speckleNoise > 0.5f)
+   /* if (speckleNoise < 0.5f)
     {
+      speckleNoise = mix(0.f, 1.f, speckleNoise);
       FragColour = vec4(speckleNoiseColoured, 1.f);
-    }
-    //FragColour+= vec4(speckleNoiseColoured, 1.0f);
-    
 
-    //multiply by -1 to invert
-    
-    FragColour *= vec4(LightIntensity,1.0);
-    //to layer noise over banana current colour, multiply light intensity by noise
+    }*/
+    //FragColour*= vec4(speckleNoiseColoured, 1.0f);
 
-
-
+    vec4 blend = vec4(speckleNoiseColoured, 1.0f) * speckleNoise + FragColour * (1.0f - speckleNoise);
     //testing noise
+    FragColour = blend;
    // FragColour = vec4(vec3(speckleNoiseColoured), 1.0);
-    //FragColour *= vec4(LightIntensity, 1.0);
+    FragColour *= vec4(LightIntensity, 1.0);
 }
 

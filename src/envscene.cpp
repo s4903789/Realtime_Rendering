@@ -64,6 +64,7 @@ void EnvScene::paintGL() noexcept {
     // Our MVP matrices
     glm::mat4 M = glm::mat4(1.0f);
     glm::mat4 MVP, MV;
+    M = glm::scale(M, glm::vec3(5.0f, 5.0f, 5.0f));
     glm::mat3 N;
 
     std::cout<<"matrices got \n";

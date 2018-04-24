@@ -28,6 +28,7 @@ void EnvScene::initGL() noexcept {
                        "shaders/env_vert.glsl",
                        "shaders/env_frag.glsl");
     shader->use("EnvironmentProgram");
+    shader->loadShader("PlateProgram", "shaders/plate_vert.glsl", "shaders/plate_frag.glsl", "shaders/plate_geo.glsl");
     // Initialise our environment map here
     initEnvironment();
     initTexture(1, m_glossMapTex, "textures/banana_hi_poly.png");
@@ -48,6 +49,12 @@ void EnvScene::initGL() noexcept {
     std::cout<<"attempting to assign mesh \n";
     m_mesh->createVAO();
     std::cout<<"Vao made \n";
+
+    //initialising the obj for the vertex
+    m_vertexMesh.reset(new ngl::Obj("models/bob.obj"));
+    std::cout<<"vertex loaded \n";
+    m_vertexMesh->createVAO();
+    std::cout<<"Vao made for vertex \n";
 }
 
 void EnvScene::paintGL() noexcept {
@@ -69,7 +76,7 @@ void EnvScene::paintGL() noexcept {
     // Our MVP matrices
     glm::mat4 M = glm::mat4(1.0f);
     glm::mat4 MVP, MV;
-    M = glm::scale(M, glm::vec3(5.0f, 5.0f, 5.0f));
+   // M = glm::scale(M, glm::vec3(5.0f, 5.0f, 5.0f)); //can change this to 2.5 l8r
     glm::mat3 N;
 
     std::cout<<"matrices got \n";
@@ -100,6 +107,14 @@ void EnvScene::paintGL() noexcept {
     //prim->draw("teapot");
     m_mesh->draw();
     std::cout<<"draw \n";
+
+    (*shader)["PlateProgram"]->use();
+    pid = shader->getProgramID("PlateProgram");
+    glUniformMatrix4fv(glGetUniformLocation(pid, "MVP"), //location of uniform
+                    1, // how many matrices to transfer
+                    false, // whether to transpose matrix
+                    glm::value_ptr(MVP)); // a raw pointer to the data
+    m_vertexMesh->draw();
 }
 
 void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *filename) {

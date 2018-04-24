@@ -31,6 +31,7 @@ private:
     void initEnvironmentSide(GLenum /*target*/, const char* /*filename*/);
 
     std::unique_ptr<ngl::Obj> m_mesh;
+    std::unique_ptr<ngl::Obj> m_vertexMesh;
 
 };
 

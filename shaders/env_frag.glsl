@@ -13,6 +13,7 @@ uniform samplerCube envMap;
 uniform sampler2D glossMap;
 uniform sampler2D banana;
 uniform sampler2D normal;
+uniform sampler2D ramp;
 uniform sampler2D tex;
 // Set the maximum environment level of detail (cannot be queried from GLSL apparently)
 // The mipmap level is determined by log_2(resolution), so if the texture was 4x4,
@@ -171,7 +172,24 @@ float sumOctave(in vec2 pos,
 
 
 /*******************************************************/
+vec3 invert(vec3 _value)
+{
+  _value *= -1;
+  _value += 1;
+  return _value;
+}
 
+vec4 invert(vec4 _value)
+{
+  _value *= -1;
+  _value += 1;
+  return _value;
+}
+
+float contrast(float _value)
+{
+  return _value *= texture(ramp, vec2(_value.r, 0.5)).r;
+}
 
 
 void main () {
@@ -261,36 +279,74 @@ void main () {
     lodMapColour = lodMapColour * texture(banana, FragmentTexCoord);
     //lodMapColour = lodMapColour + texture(banana, FragmentTexCoord);
     // Next you will need to used a gloss map to determine the level of "smudge"
+
     //FragColour = vec4(lodMapColour.xyz*LightIntensity,1.0); //colour;
 
 
     float speckleNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 20.0f, 0.0f, 1.0f); //iterations, persistence, frequency, low, high
     float maskNoise1 = sumOctave(FragmentTexCoord, 12, 0.5f, 30.0f, 0.0f, 1.0f);
     float maskNoise2 = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
-    speckleNoise = speckleNoise * maskNoise1 * maskNoise2;
-    vec3 speckleColour = vec3(0.6, 0.352, 0.03);
-    speckleNoise*= 2;
+    float maskNoise3 = sumOctave(FragmentTexCoord, 12, 0.5f, 50.0f, 0.0f, 1.0f);
+    float maskNoise4 = sumOctave(FragmentTexCoord, 12, 0.5f, 20.0f, 0.0f, 1.0f);
+    speckleNoise = speckleNoise * maskNoise1 * maskNoise2 * maskNoise3 * maskNoise4;
+    vec4 speckleColour = vec4(0.356f, 0.149f, 0.027f, 1.0f);
+    speckleNoise*= 4;
     if (speckleNoise > 1.0f)
     {
       speckleNoise = 1.0f; 
     }
-    vec3 speckleNoiseColoured = speckleNoise * speckleColour;
-    
-    FragColour = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
-    
-    //FragColour -= (speckleNoiseColoured, speckleNoise);
-   /* if (speckleNoise < 0.5f)
+
+    float patchNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 5.0f, 0.0f, 1.0f);
+    float maskNoise5 = sumOctave(FragmentTexCoord, 12, 0.5f, 7.0f, 0.0f, 1.0f);
+    float maskNoise6 = sumOctave(vec2(FragmentTexCoord.x * 3, FragmentTexCoord.y), 12, 0.5f, 6.0f, 0.0f, 1.0f);
+    patchNoise = patchNoise * maskNoise5 * maskNoise6;
+    patchNoise*= 3;
+    if (patchNoise > 1.f)
     {
-      speckleNoise = mix(0.f, 1.f, speckleNoise);
-      FragColour = vec4(speckleNoiseColoured, 1.f);
+      patchNoise = 1.f;
+    }
 
-    }*/
-    //FragColour*= vec4(speckleNoiseColoured, 1.0f);
+    float bruiseNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 6.0f, 0.0f, 1.0f);
+    bruiseNoise /= maskNoise6;
+   // bruiseNoise*= 3;
+    if (bruiseNoise > 1.f)
+    {
+      bruiseNoise = 1.f;
+    }
+    bruiseNoise = (bruiseNoise * -1) + 1;
+    //BRUISES ARE THE WHITE BITS YOU MORON
 
-    vec4 blend = vec4(speckleNoiseColoured, 1.0f) * speckleNoise + FragColour * (1.0f - speckleNoise);
+    //upping the contrast
+
+   /* float root = sqrt(2*bruiseNoise - 1);
+    float cuberoot = pow(root, 0.3333);
+    float contrastNoise = 0.5 * (cuberoot + 1);*/
+   
+    
+    //speckleNoise = speckleNoise + patchNoise;
+    if (speckleNoise > 1.f)
+    {
+      speckleNoise = 1.0f;
+    }
+    FragColour = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+  
+    //Increase contrast of the noise
+    bruiseNoise = contrast(bruiseNoise);
+
+    //This sets bruiseNoiseColour to be black with the inverse of brown spots
+    vec4 bruiseNoiseColour = (bruiseNoise * invert(vec4(0.2, 0.176, 0.075, 1.f)));
+
+    //This then inverts it to be white with brown spots so that it can be multiplied with the diffuse
+    bruiseNoiseColour = invert(bruiseNoiseColour);
+    
+    vec4 patchColour = vec4(0.176, 0.086, 0.039, 1.f);
+    vec4 blend = patchColour * patchNoise + FragColour * (1.0f - patchNoise);
+    blend = speckleColour * speckleNoise + blend * (1.0f - speckleNoise);
+    //vec4 blend2 = blend * patchNoiseColoured + FragColour * (1.0 - patchNoiseColoured);
     //testing noise
-    FragColour = blend;
-   // FragColour = vec4(vec3(speckleNoiseColoured), 1.0);
-    FragColour *= vec4(LightIntensity, 1.0);
+    FragColour = blend * vec4(bruiseNoiseColour);
+    FragColour*= vec4(LightIntensity, 1.0);
+
+    
 }
 

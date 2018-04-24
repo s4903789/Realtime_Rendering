@@ -19,7 +19,7 @@ public:
 
 private:
     /// The ID of our environment texture
-    GLuint m_envTex, m_glossMapTex, m_bananaTex,m_bananaNormal;
+    GLuint m_envTex, m_glossMapTex, m_bananaTex,m_bananaNormal, m_ramp, m_noiseMap;
 
     /// Initialise the entire environment map
     void initEnvironment();

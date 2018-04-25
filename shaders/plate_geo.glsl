@@ -29,7 +29,7 @@ void calculateNormal(float _innerRadius, float _outerRadius, float _innerYPos, f
     float b = _outerYPos - _innerYPos;
     float alpha = atan(b/a);
     float phi = (M_PI/2.f) - alpha;
-    float d = sqrt(pow(gl_Position.x, 2) + pow(gl_Position.y, 2));
+    float d = sqrt(pow(gl_Position.x, 2) + pow(gl_Position.z, 2));
     vec3 n = vec3(-_pos.x, d*tan(phi), -_pos.z);
     vec3 nHat = normalize(n);
     plateNormal = n;

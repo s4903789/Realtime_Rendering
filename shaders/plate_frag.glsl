@@ -98,6 +98,6 @@ void main()
     /************************************************************************/
 
     FragColour = vec4(v, 1.0);
-    FragColour = vec4(n, 1.0f);
+    FragColour = vec4(LightIntensity, 1.0f);
 
 }

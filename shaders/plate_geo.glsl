@@ -23,42 +23,43 @@ vec3 ring(float r, float theta, float yPos)
     }
     return pos;
 }
-/*void calculateNormal(float _innerRadius, float _outerRadius, float _innerYPos, float _outerYPos, vec3 _pos)
+void calculateNormal(float _innerRadius, float _outerRadius, float _innerYPos, float _outerYPos, vec3 _pos)
 {
     float a = _outerRadius - _innerRadius;
     float b = _outerYPos - _innerYPos;
     float alpha = atan(b/a);
     float phi = (M_PI/2.f) - alpha;
-    float d = sqrt(pow(gl_Position.x, 2) + pow(gl_Position.z, 2));
+    float d = sqrt(pow(_pos.x, 2) + pow(_pos.z, 2));
     vec3 n = vec3(-_pos.x, d*tan(phi), -_pos.z);
     vec3 nHat = normalize(n);
-    plateNormal = n;
-}*/
+    plateNormal = vec3(n);
+}
+
 void drawDisk(float _innerRadius, float _outerRadius, float _innerYPos, float _outerYPos)
 {
-    int numEdges = 40;
+    int numEdges = 8;
     float theta = 0.f;
     for(int i = 0; i < numEdges + 1; i++)
     {   
-        vec3 pos = ring(_outerRadius, theta, _outerYPos);
-        gl_Position = MVP * vec4(pos, 1.f);
-        //calculateNormal(_innerRadius, _outerRadius, _innerYPos, _outerYPos, pos);
+        vec3 pos = vec4(MVP * vec4(ring(_outerRadius, theta, _outerYPos), 1.f)).xyz;
+        gl_Position = vec4(pos, 1.f);
+        calculateNormal(_innerRadius, _outerRadius, _innerYPos, _outerYPos, pos);
         platePosition = gl_Position.xyz;
 
-        vec3 n = normalize(cross(gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz,
-        gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz));
+        //vec3 n = normalize(cross(gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz,
+        //gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz));
 
-        plateNormal = n;
+        //plateNormal = n;
 
         EmitVertex();   
-        pos = ring(_innerRadius, theta, _innerYPos);
-        gl_Position = MVP * vec4(pos, 1.f);
-        //calculateNormal(_innerRadius, _outerRadius, _innerYPos, _outerYPos, pos);
+        pos = vec4( MVP * vec4(ring(_innerRadius, theta, _innerYPos), 1.f)).xyz;
+        gl_Position = vec4(pos, 1.f);
+        calculateNormal(_innerRadius, _outerRadius, _innerYPos, _outerYPos, pos);
 
-        n = normalize(cross(gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz,
-        gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz));
+        //n = normalize(cross(gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz,
+        //gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz));
 
-        plateNormal = n;
+        //plateNormal = n;
 
         EmitVertex();
         theta = theta + (2.f * M_PI / numEdges);
@@ -73,7 +74,7 @@ void main()
     //small disk
     //drawDisk(0.3f, 0.3, 0.f, 0.02f);
     //big disk
-    drawDisk(0.f, 0.49, 0.f, 0.2f);
+    drawDisk(0.0f, 0.3, -0.1f, 0.1f);
 
 
 }

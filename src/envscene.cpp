@@ -12,7 +12,7 @@ EnvScene::EnvScene() : Scene() {}
 void EnvScene::initGL() noexcept {
     // Fire up the NGL machinary (not doing this will make it crash)
     ngl::NGLInit::instance();
-
+    glDepthRange(0.001, 10000.f);
     // Set background colour
     glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 

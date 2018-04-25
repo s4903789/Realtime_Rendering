@@ -105,7 +105,7 @@ void EnvScene::paintGL() noexcept {
                        glm::value_ptr(glm::inverse(m_V))); // a raw pointer to the data
     ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
     //prim->draw("teapot");
-    m_mesh->draw();
+    //m_mesh->draw();
     std::cout<<"draw \n";
 
     (*shader)["PlateProgram"]->use();
@@ -114,6 +114,10 @@ void EnvScene::paintGL() noexcept {
                     1, // how many matrices to transfer
                     false, // whether to transpose matrix
                     glm::value_ptr(MVP)); // a raw pointer to the data
+    glUniformMatrix3fv(glGetUniformLocation(pid, "N"), //location of uniform
+                       1, // how many matrices to transfer
+                       true, // whether to transpose matrix
+                       glm::value_ptr(N)); // a raw pointer to the data
     m_vertexMesh->draw();
 }
 

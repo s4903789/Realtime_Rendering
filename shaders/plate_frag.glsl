@@ -41,8 +41,7 @@ uniform MaterialInfo Material = MaterialInfo(
 void main()
 {
         // Calculate the normal (this is the expensive bit in Phong)
-    vec3 n = normalize( plateNormal );
-
+    vec3 n = plateNormal;
     // Calculate the eye vector
     vec3 v = vec3(0.f, 0.f, 1.f);
 
@@ -99,6 +98,6 @@ void main()
     /************************************************************************/
 
     FragColour = vec4(v, 1.0);
-    FragColour = vec4(LightIntensity, 1.0f);
+    FragColour = vec4(n, 1.0f);
 
 }

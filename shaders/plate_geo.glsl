@@ -23,7 +23,7 @@ vec3 ring(float r, float theta, float yPos)
     }
     return pos;
 }
-void calculateNormal(float _innerRadius, float _outerRadius, float _innerYPos, float _outerYPos, vec3 _pos)
+/*void calculateNormal(float _innerRadius, float _outerRadius, float _innerYPos, float _outerYPos, vec3 _pos)
 {
     float a = _outerRadius - _innerRadius;
     float b = _outerYPos - _innerYPos;
@@ -33,7 +33,7 @@ void calculateNormal(float _innerRadius, float _outerRadius, float _innerYPos, f
     vec3 n = vec3(-_pos.x, d*tan(phi), -_pos.z);
     vec3 nHat = normalize(n);
     plateNormal = n;
-}
+}*/
 void drawDisk(float _innerRadius, float _outerRadius, float _innerYPos, float _outerYPos)
 {
     int numEdges = 40;
@@ -42,18 +42,29 @@ void drawDisk(float _innerRadius, float _outerRadius, float _innerYPos, float _o
     {   
         vec3 pos = ring(_outerRadius, theta, _outerYPos);
         gl_Position = MVP * vec4(pos, 1.f);
-        calculateNormal(_innerRadius, _outerRadius, _innerYPos, _outerYPos, pos);
+        //calculateNormal(_innerRadius, _outerRadius, _innerYPos, _outerYPos, pos);
         platePosition = gl_Position.xyz;
+
+        vec3 n = normalize(cross(gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz,
+        gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz));
+
+        plateNormal = n;
+
         EmitVertex();   
         pos = ring(_innerRadius, theta, _innerYPos);
         gl_Position = MVP * vec4(pos, 1.f);
-        calculateNormal(_innerRadius, _outerRadius, _innerYPos, _outerYPos, pos);
+        //calculateNormal(_innerRadius, _outerRadius, _innerYPos, _outerYPos, pos);
+
+        n = normalize(cross(gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz,
+        gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz));
+
+        plateNormal = n;
+
         EmitVertex();
         theta = theta + (2.f * M_PI / numEdges);
     }
     EndPrimitive();
 }
-
 
 
 void main() 

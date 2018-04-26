@@ -28,7 +28,7 @@ void EnvScene::initGL() noexcept {
                        "shaders/env_vert.glsl",
                        "shaders/env_frag.glsl");
     shader->use("EnvironmentProgram");
-    shader->loadShader("PlateProgram", "shaders/plate_vert.glsl", "shaders/plate_frag.glsl", "shaders/plate_geo.glsl");
+    shader->loadShader("PlateProgram", "shaders/plate_vert.glsl", "shaders/plate_frag.glsl");
     // Initialise our environment map here
     initEnvironment();
     initTexture(1, m_glossMapTex, "textures/banana_hi_poly.png");
@@ -55,6 +55,11 @@ void EnvScene::initGL() noexcept {
     std::cout<<"vertex loaded \n";
     m_vertexMesh->createVAO();
     std::cout<<"Vao made for vertex \n";
+
+    //initialising the mesh for the bowl
+    m_bowlMesh.reset(new ngl::Obj("models/Bowl.obj"));
+    std::cout<<"bowl loaded \n";
+    m_bowlMesh->createVAO();
 }
 
 void EnvScene::paintGL() noexcept {
@@ -105,7 +110,7 @@ void EnvScene::paintGL() noexcept {
                        glm::value_ptr(glm::inverse(m_V))); // a raw pointer to the data
     ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
     //prim->draw("teapot");
-    //m_mesh->draw();
+  //  m_mesh->draw();
     std::cout<<"draw \n";
 
     (*shader)["PlateProgram"]->use();
@@ -118,7 +123,7 @@ void EnvScene::paintGL() noexcept {
                        1, // how many matrices to transfer
                        true, // whether to transpose matrix
                        glm::value_ptr(N)); // a raw pointer to the data
-    m_vertexMesh->draw();
+    m_bowlMesh->draw();
 }
 
 void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *filename) {

@@ -1,6 +1,44 @@
 #version 420 core
 
+/// @brief our output fragment colour
 layout (location=0) out vec4 FragColour;
+
+smooth in vec3 FragmentPosition;
+smooth in vec3 FragmentNormal;
+smooth in vec2 FragmentTexCoord;
+
+uniform mat4 MVP;
+uniform vec3 LightPos;
+uniform mat3 N; 
+//uniform mat3 VertexNormal;
+in vec3 n;
+in vec3 P;
+in vec3 V;
+in vec3 L;
+
+void main()
+{
+    FragColour = vec4(n, 1.f);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*layout (location=0) out vec4 FragColour;
 smooth in vec3 plateNormal;
 smooth in vec3 platePosition;
 uniform mat3 N; 
@@ -48,7 +86,7 @@ void main()
     //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
     
     /*******************************************************************************/
-    vec3 p = platePosition.xyz; /// FragmentPosition.w;
+  /*  vec3 p = platePosition.xyz; /// FragmentPosition.w;
       // Calculate the light vector
     vec3 s = normalize( vec3(Light.Position) - p); //this is s for the h equation
 
@@ -97,7 +135,7 @@ void main()
 
     /************************************************************************/
 
-    FragColour = vec4(v, 1.0);
+  /*  FragColour = vec4(v, 1.0);
     FragColour = vec4(LightIntensity, 1.0f);
 
-}
+}*/

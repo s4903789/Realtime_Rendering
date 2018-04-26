@@ -32,6 +32,7 @@ private:
 
     std::unique_ptr<ngl::Obj> m_mesh;
     std::unique_ptr<ngl::Obj> m_vertexMesh;
+    std::unique_ptr<ngl::Obj> m_bowlMesh;
 
 };
 

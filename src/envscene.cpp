@@ -43,6 +43,15 @@ void EnvScene::initGL() noexcept {
     initTexture(4, m_ramp, "textures/ramp.tif");
     shader->setUniform("ramp", 4);
 
+
+
+    shader->use("PlateProgram");
+    initTexture(6, m_woodNormal, "textures/wood_normal.jpg");
+    shader->setUniform("woodNormal",6);
+
+    initTexture(7, m_woodPerturb, "textures/wood_perturb.jpg");
+    shader->setUniform("perturbMap", 7);
+
     //Initialising the obj for the banana along with its texture
     
     m_mesh.reset(new ngl::Obj("models/small_banana_obj.obj", "textures/banana_hi_poly.png"));
@@ -57,7 +66,7 @@ void EnvScene::initGL() noexcept {
     std::cout<<"Vao made for vertex \n";
 
     //initialising the mesh for the bowl
-    m_bowlMesh.reset(new ngl::Obj("models/Bowl.obj"));
+    m_bowlMesh.reset(new ngl::Obj("models/Bowl_Super_Hi_Poly.obj"));
     std::cout<<"bowl loaded \n";
     m_bowlMesh->createVAO();
 }
@@ -86,6 +95,8 @@ void EnvScene::paintGL() noexcept {
 
     std::cout<<"matrices got \n";
 
+    M = glm::translate(M, glm::vec3(0.f, 0.2f, 0.f));
+
     // Note the matrix multiplication order as we are in COLUMN MAJOR storage
     MV = m_V * M;
     N = glm::inverse(glm::mat3(MV));
@@ -110,8 +121,13 @@ void EnvScene::paintGL() noexcept {
                        glm::value_ptr(glm::inverse(m_V))); // a raw pointer to the data
     ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
     //prim->draw("teapot");
-  //  m_mesh->draw();
+    m_mesh->draw();
     std::cout<<"draw \n";
+
+    M = glm::mat4();
+    MV = m_V * M;
+    N = glm::inverse(glm::mat3(MV));
+    MVP = m_P * MV;
 
     (*shader)["PlateProgram"]->use();
     pid = shader->getProgramID("PlateProgram");

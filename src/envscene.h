@@ -24,6 +24,16 @@ private:
     /// Initialise the entire environment map
     void initEnvironment();
 
+    /*************SHADOWS************/
+    void loadToLightPOVShader();
+    void loadMatricesToShadowShader();
+    ngl::Mat4 m_mouseGlobalTX;
+    ngl::Camera m_cam;
+
+
+
+    /********************************/
+
     /// Utility function for loading up a 2D texture
     void initTexture(const GLuint&, GLuint &, const char *);
 

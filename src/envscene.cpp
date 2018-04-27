@@ -69,7 +69,59 @@ void EnvScene::initGL() noexcept {
     m_bowlMesh.reset(new ngl::Obj("models/Bowl_Super_Hi_Poly.obj"));
     std::cout<<"bowl loaded \n";
     m_bowlMesh->createVAO();
+
+
+    /*****************************SHADOWS************************************/
+    shader->use("ShadowProgram");
+    shader->loadShader("ShadowProgram", "shaders/shadow_vert.glsl", "shaders/shadow_frag.glsl");
+
 }
+
+/*******************MORE SHADOWS*******************/
+void EnvScene::loadMatricesToShadowShader()
+{
+      ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+  shader->use("Shadow");
+  ngl::Mat4 MV;
+  ngl::Mat4 MVP;
+  ngl::Mat3 normalMatrix;
+  ngl::Mat4 M;
+  M=m_mouseGlobalTX*m_transform.getMatrix();
+  MV=  m_cam.getViewMatrix()*M;
+  MVP= m_cam.getVPMatrix()*M;
+  normalMatrix=MV;
+  normalMatrix.inverse().transpose();
+  shader->setUniform("MV",MV);
+  shader->setUniform("MVP",MVP);
+  shader->setUniform("normalMatrix",normalMatrix);
+  shader->setUniform("LightPosition",m_lightPosition.m_x,m_lightPosition.m_y,m_lightPosition.m_z);
+  shader->setUniform("inColour",1.0f,1.0f,1.0f,1.0f);
+
+  // x = x* 0.5 + 0.5
+  // y = y* 0.5 + 0.5
+  // z = z* 0.5 + 0.5
+  // Moving from unit cube [-1,1] to [0,1]
+  ngl::Mat4 bias;
+  bias.scale(0.5,0.5,0.5);
+  bias.translate(0.5,0.5,0.5);
+
+  ngl::Mat4 view=m_lightCamera.getViewMatrix();
+  ngl::Mat4 proj=m_lightCamera.getProjectionMatrix();
+  ngl::Mat4 model=m_transform.getMatrix();
+
+  ngl::Mat4 textureMatrix= bias * proj * view * model;
+
+  shader->setUniform("textureMatrix",textureMatrix);
+}
+
+void EnvScene::loadToLightPOVShader()
+{
+  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+  shader->use("Colour");
+  ngl::Mat4 MVP=m_lightCamera.getVPMatrix()*m_transform.getMatrix();
+  shader->setUniform("MVP",MVP);
+}
+
 
 void EnvScene::paintGL() noexcept {
     // Clear the screen (fill with our glClearColor)

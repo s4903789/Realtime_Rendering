@@ -17,7 +17,7 @@ SOURCES += src/main.cpp src/envscene.cpp \
            src/camera.cpp \
            src/fixedcamera.cpp \
            src/scene.cpp \
-           src/trackballcamera.cpp
+           src/trackballcamera.cpp \
 
 OTHER_FILES += shaders/env_vert.glsl \
                shaders/env_frag.glsl \

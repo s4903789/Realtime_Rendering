@@ -6,154 +6,159 @@
 #include <ngl/VAOPrimitives.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/Image.h>
+#include "glm/ext.hpp"
+
 
 EnvScene::EnvScene() : Scene() {}
 
-void EnvScene::initGL() noexcept {
+void EnvScene::initGL() noexcept
+{
     // Fire up the NGL machinary (not doing this will make it crash)
     ngl::NGLInit::instance();
     glDepthRange(0.001, 10000.f);
     // Set background colour
     glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
-
     // enable depth testing for drawing
     glEnable(GL_DEPTH_TEST);
-
     // enable multisampling for smoother drawing
     glEnable(GL_MULTISAMPLE);
 
-    // Create and compile the vertex and fragment shader
+    //Set up parameters for rendering shadows
+    m_lightPosition = ngl::Vec3(2.f, 2.f, 10.f);
+    m_lightCamera.set(m_lightPosition, ngl::Vec3::zero(), ngl::Vec3::up());
+    m_lightCamera.setShape(45,float(m_width/m_height),0.001,10000.f);
+    initFBO();
+    glViewport(0, 0, m_width, m_height);
+
+
+    //Load in shaders
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+
     shader->loadShader("EnvironmentProgram",
                        "shaders/env_vert.glsl",
                        "shaders/env_frag.glsl");
     shader->use("EnvironmentProgram");
-    shader->loadShader("PlateProgram", "shaders/plate_vert.glsl", "shaders/plate_frag.glsl");
-    // Initialise our environment map here
-    initEnvironment();
-    initTexture(1, m_glossMapTex, "textures/banana_hi_poly.png");
-    shader->setUniform("glossMap", 1);
-    /*initTexture(2,m_bananaTex, "/home/lfreeman/rendering_workshops/environment/images/une_banane.jpg");
-    shader->setUniform("banana",2);*/
+    /*initTexture(1, m_glossMapTex, "textures/banana_hi_poly.png");
+    shader->setUniform("glossMap", 2);
     initTexture(3, m_bananaNormal, "images/NormalMap(1).jpg");
     shader->setUniform("normal",3);
     initTexture(5, m_noiseMap, "textures/noise_map.png");
     shader->setUniform("noiseMap", 5);
-
     initTexture(4, m_ramp, "textures/ramp.tif");
     shader->setUniform("ramp", 4);
+    */
 
-
-
+    shader->loadShader("PlateProgram",
+                       "shaders/plate_vert.glsl",
+                       "shaders/plate_frag.glsl");
     shader->use("PlateProgram");
-    initTexture(6, m_woodNormal, "textures/wood_normal.jpg");
-    shader->setUniform("woodNormal",6);
+    //initTexture(6, m_woodNormal, "textures/wood_normal.jpg");
+    //shader->setUniform("woodNormal",6);
+    //initTexture(7, m_woodPerturb, "textures/wood_perturb.jpg");
+    //shader->setUniform("perturbMap", 7);
 
-    initTexture(7, m_woodPerturb, "textures/wood_perturb.jpg");
-    shader->setUniform("perturbMap", 7);
+    shader->loadShader("ShadowProgram",
+                       "shaders/shadow_vert.glsl",
+                       "shaders/shadow_frag.glsl");
+
+    shader->loadShader("ColourProgram",
+                       "shaders/colour_vert.glsl",
+                       "shaders/colour_frag.glsl");
+    shader->use("ColourProgram");
+    shader->setUniform("Colour",1.0f,0.0f,0.0f,1.0f);
 
     //Initialising the obj for the banana along with its texture
-    
-    m_mesh.reset(new ngl::Obj("models/small_banana_obj.obj", "textures/banana_hi_poly.png"));
+    m_mesh.reset(new ngl::Obj("models/small_banana_obj.obj"));//, "textures/banana_hi_poly.png"));
     std::cout<<"attempting to assign mesh \n";
     m_mesh->createVAO();
     std::cout<<"Vao made \n";
-
-    //initialising the obj for the vertex
-    m_vertexMesh.reset(new ngl::Obj("models/bob.obj"));
-    std::cout<<"vertex loaded \n";
-    m_vertexMesh->createVAO();
-    std::cout<<"Vao made for vertex \n";
-
     //initialising the mesh for the bowl
     m_bowlMesh.reset(new ngl::Obj("models/Bowl_Super_Hi_Poly.obj"));
     std::cout<<"bowl loaded \n";
     m_bowlMesh->createVAO();
-
-
-    /*****************************SHADOWS************************************/
-    shader->use("ShadowProgram");
-    shader->loadShader("ShadowProgram", "shaders/shadow_vert.glsl", "shaders/shadow_frag.glsl");
-
 }
 
 /*******************MORE SHADOWS*******************/
 void EnvScene::loadMatricesToShadowShader()
 {
-      ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-  shader->use("Shadow");
-  ngl::Mat4 MV;
-  ngl::Mat4 MVP;
-  ngl::Mat3 normalMatrix;
-  ngl::Mat4 M;
-  M=m_mouseGlobalTX*m_transform.getMatrix();
-  MV=  m_cam.getViewMatrix()*M;
-  MVP= m_cam.getVPMatrix()*M;
-  normalMatrix=MV;
-  normalMatrix.inverse().transpose();
-  shader->setUniform("MV",MV);
-  shader->setUniform("MVP",MVP);
-  shader->setUniform("normalMatrix",normalMatrix);
-  shader->setUniform("LightPosition",m_lightPosition.m_x,m_lightPosition.m_y,m_lightPosition.m_z);
-  shader->setUniform("inColour",1.0f,1.0f,1.0f,1.0f);
+    ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+    shader->use("ShadowProgram");
+    glm::mat4 MV;
+    glm::mat4 MVP;
+    glm::mat3 N;
+    MV =  m_V * m_model;
+    MVP = m_P * MV;
+    N = glm::inverse(glm::mat3(MV));
 
-  // x = x* 0.5 + 0.5
-  // y = y* 0.5 + 0.5
-  // z = z* 0.5 + 0.5
-  // Moving from unit cube [-1,1] to [0,1]
-  ngl::Mat4 bias;
-  bias.scale(0.5,0.5,0.5);
-  bias.translate(0.5,0.5,0.5);
+    GLint pid = shader->getProgramID("ShadowProgram");
 
-  ngl::Mat4 view=m_lightCamera.getViewMatrix();
-  ngl::Mat4 proj=m_lightCamera.getProjectionMatrix();
-  ngl::Mat4 model=m_transform.getMatrix();
+    glUniformMatrix4fv(glGetUniformLocation(pid, "MV"), //location of uniform
+                        1, // how many matrices to transfer
+                        false, // whether to transpose matrix
+                        glm::value_ptr(MV)); // a raw pointer to the data
+    glUniformMatrix4fv(glGetUniformLocation(pid, "MVP"), //location of uniform
+                        1, // how many matrices to transfer
+                        false, // whether to transpose matrix
+                        glm::value_ptr(MVP)); // a raw pointer to the data
+    glUniformMatrix3fv(glGetUniformLocation(pid, "N"), //location of uniform
+                        1, // how many matrices to transfer
+                        true, // whether to transpose matrix
+                        glm::value_ptr(N)); // a raw pointer to the data                        
 
-  ngl::Mat4 textureMatrix= bias * proj * view * model;
+    shader->setUniform("LightPosition",m_lightPosition);
+    shader->setUniform("inColour",1.0f,1.0f,1.0f,1.0f);
+    glUniform1i(glGetUniformLocation(pid, "ShadowMap"), 1);
 
-  shader->setUniform("textureMatrix",textureMatrix);
+    // x = x* 0.5 + 0.5
+    // y = y* 0.5 + 0.5
+    // z = z* 0.5 + 0.5
+    // Moving from unit cube [-1,1] to [0,1]
+    glm::mat4 bias;
+    bias = glm::scale(bias, glm::vec3(0.5f, 0.5f, 0.5f));
+    bias = glm::translate(bias, glm::vec3(1.f, 1.f, 1.f));
+    //std::cout<<"Bias = "<<glm::to_string(bias)<<'\n';
+
+    glm::mat4 textureMatrix= bias * m_P * m_V * m_model;
+    glUniformMatrix4fv(glGetUniformLocation(pid, "textureMatrix"), //location of uniform
+                    1, // how many matrices to transfer
+                    false, // whether to transpose matrix
+                    glm::value_ptr(textureMatrix)); // a raw pointer to the data
 }
 
 void EnvScene::loadToLightPOVShader()
 {
-  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-  shader->use("Colour");
-  ngl::Mat4 MVP=m_lightCamera.getVPMatrix()*m_transform.getMatrix();
-  shader->setUniform("MVP",MVP);
+    ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+    GLint pid = shader->getProgramID("ColourProgram");
+    shader->use("ColourProgram");
+    glm::mat4 MVP=m_P*m_V*m_model;
+    glUniformMatrix4fv(glGetUniformLocation(pid, "MVP"), //location of uniform
+                    1, // how many matrices to transfer
+                    false, // whether to transpose matrix
+                    glm::value_ptr(MVP)); // a raw pointer to the data
 }
 
-
-void EnvScene::paintGL() noexcept {
-    // Clear the screen (fill with our glClearColor)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    std::cout<<"clear\n";
-
-    // Set up the viewport
-    glViewport(0,0,m_width,m_height);
-
-    // Use our shader for this draw
+void EnvScene::loadToBananaShader()
+{
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
     (*shader)["EnvironmentProgram"]->use();
     GLint pid = shader->getProgramID("EnvironmentProgram");
 
-    std::cout<<"shader got\n";
+    //std::cout<<"shader got\n";
 
     // Our MVP matrices
-    glm::mat4 M = glm::mat4(1.0f);
     glm::mat4 MVP, MV;
    // M = glm::scale(M, glm::vec3(5.0f, 5.0f, 5.0f)); //can change this to 2.5 l8r
     glm::mat3 N;
 
-    std::cout<<"matrices got \n";
-
-    M = glm::translate(M, glm::vec3(0.f, 0.2f, 0.f));
+    //std::cout<<"matrices got \n";
+    m_model = glm::mat4();
+    m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
 
     // Note the matrix multiplication order as we are in COLUMN MAJOR storage
-    MV = m_V * M;
+    MV = m_V * m_model;
     N = glm::inverse(glm::mat3(MV));
     MVP = m_P * MV;
-    std::cout<<"matrix multiplication \n";
+   // std::cout<<"matrix multiplication \n";
     // Set this MVP on the GPU
     glUniformMatrix4fv(glGetUniformLocation(pid, "MVP"), //location of uniform
                        1, // how many matrices to transfer
@@ -171,18 +176,22 @@ void EnvScene::paintGL() noexcept {
                        1, // how many matrices to transfer
                        false, // whether to transpose matrix
                        glm::value_ptr(glm::inverse(m_V))); // a raw pointer to the data
-    ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
-    //prim->draw("teapot");
-    m_mesh->draw();
-    std::cout<<"draw \n";
+}
 
-    M = glm::mat4();
-    MV = m_V * M;
+void EnvScene::loadToBowlShader()
+{
+    ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+    (*shader)["PlateProgram"]->use();
+    GLint pid = shader->getProgramID("PlateProgram");
+
+    m_model = glm::mat4();
+    glm::mat4 MVP, MV;
+    glm::mat3 N;
+
+    MV = m_V * m_model;
     N = glm::inverse(glm::mat3(MV));
     MVP = m_P * MV;
 
-    (*shader)["PlateProgram"]->use();
-    pid = shader->getProgramID("PlateProgram");
     glUniformMatrix4fv(glGetUniformLocation(pid, "MVP"), //location of uniform
                     1, // how many matrices to transfer
                     false, // whether to transpose matrix
@@ -191,6 +200,65 @@ void EnvScene::paintGL() noexcept {
                        1, // how many matrices to transfer
                        true, // whether to transpose matrix
                        glm::value_ptr(N)); // a raw pointer to the data
+}
+
+void EnvScene::paintGL() noexcept
+{
+    //------------------------------------------------------------Shadows--------------------------------------------------------------------------------
+    //glEnable(GL_CULL_FACE);
+    glBindFramebuffer(GL_FRAMEBUFFER,m_fboId);
+    // bind the texture object to 0 (off )
+    glBindTexture(GL_TEXTURE_2D,0);
+    // we need to render to the same size as the texture to avoid
+    // distortions
+    glViewport(0,0,1024,1024);
+
+    // Clear previous frame values
+    glClear( GL_DEPTH_BUFFER_BIT);
+    // as we are only rendering depth turn off the colour / alpha
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+    //glCullFace(GL_FRONT);
+
+    m_model = glm::mat4();
+    m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
+    loadToLightPOVShader();
+    m_mesh->draw();
+
+
+    m_model = glm::mat4();
+    loadToLightPOVShader();
+    m_bowlMesh->draw();
+
+    //------------------------------------------------------------Draw original stuff--------------------------------------------------------------------
+    glBindFramebuffer(GL_FRAMEBUFFER,0);
+    // set the viewport to the screen dimensions
+    glViewport(0, 0, m_width, m_height);
+    // enable colour rendering again (as we turned it off earlier)
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    // clear the screen
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // bind the shadow texture
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_fboTextureId);
+    //-------------------------------------------------------
+    // Clear the screen (fill with our glClearColor)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Set up the viewport
+    glViewport(0,0,m_width,m_height);
+    //glDisable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+
+    //loadToBananaShader();
+    m_model = glm::mat4();
+    m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
+    loadMatricesToShadowShader();
+    m_mesh->draw();
+
+    //loadToBowlShader();
+    m_model = glm::mat4();
+    loadMatricesToShadowShader();
     m_bowlMesh->draw();
 }
 
@@ -220,8 +288,8 @@ void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *fil
                 img.getPixels()); // Pointer to image data in memory
 
     // Set up parameters for our texture
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
@@ -229,6 +297,39 @@ void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *fil
 /**
  * @brief Scene::initEnvironment in texture unit 0
  */
+
+void EnvScene::initFBO()
+{
+  // Try to use a texture depth component
+  glGenTextures(1, &m_fboTextureId);
+  glBindTexture(GL_TEXTURE_2D, m_fboTextureId);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  // create our FBO
+  glGenFramebuffers(1, &m_fboId);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_fboId);
+  // disable the colour and read buffers as we only want depth
+  glDrawBuffer(GL_NONE);
+  glReadBuffer(GL_NONE);
+
+  // attach our texture to the FBO
+
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D, m_fboTextureId, 0);
+
+  // switch back to window-system-provided framebuffer
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void EnvScene::initEnvironment() {
     // Enable seamless cube mapping
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);

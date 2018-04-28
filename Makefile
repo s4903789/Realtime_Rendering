@@ -655,6 +655,11 @@ obj/main.o: src/main.cpp src/envscene.h \
 		/home/s4903789/NGL/include/ngl/NGLassert.h \
 		include/scene.h \
 		include/glinclude.h \
+		/home/s4903789/NGL/include/ngl/Mat4.h \
+		/home/s4903789/NGL/include/ngl/Camera.h \
+		/home/s4903789/NGL/include/ngl/Plane.h \
+		/home/s4903789/NGL/include/ngl/AABB.h \
+		/home/s4903789/NGL/include/ngl/Transformation.h \
 		include/fixedcamera.h \
 		include/camera.h \
 		include/trackballcamera.h
@@ -790,6 +795,11 @@ obj/envscene.o: src/envscene.cpp src/envscene.h \
 		/home/s4903789/NGL/include/ngl/NGLassert.h \
 		include/scene.h \
 		include/glinclude.h \
+		/home/s4903789/NGL/include/ngl/Mat4.h \
+		/home/s4903789/NGL/include/ngl/Camera.h \
+		/home/s4903789/NGL/include/ngl/Plane.h \
+		/home/s4903789/NGL/include/ngl/AABB.h \
+		/home/s4903789/NGL/include/ngl/Transformation.h \
 		/home/s4903789/NGL/include/ngl/NGLInit.h \
 		/home/s4903789/NGL/include/ngl/Singleton.h \
 		/home/s4903789/NGL/include/ngl/VAOPrimitives.h \
@@ -797,8 +807,7 @@ obj/envscene.o: src/envscene.cpp src/envscene.h \
 		/home/s4903789/NGL/include/ngl/Shader.h \
 		/home/s4903789/NGL/include/ngl/ShaderProgram.h \
 		/home/s4903789/NGL/include/ngl/Util.h \
-		/home/s4903789/NGL/include/ngl/Mat3.h \
-		/home/s4903789/NGL/include/ngl/Mat4.h
+		/home/s4903789/NGL/include/ngl/Mat3.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/envscene.o src/envscene.cpp
 
 obj/camera.o: src/camera.cpp include/camera.h

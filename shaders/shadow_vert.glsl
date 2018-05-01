@@ -16,6 +16,7 @@ layout (location=1) in vec2 inUV;
 layout (location=2) in  vec3  inNormal;
 out vec4  ShadowCoord;
 out vec4  Colour;
+out vec2 no;
 void main()
 {
 	vec4 ecPosition = MV * inVert;
@@ -29,5 +30,6 @@ void main()
 	//Colour  = vec4(diffuse * inColour.rgb, inColour.a);
 	Colour = vec4(diffuse);
   gl_Position    = MVP * inVert;
+  no = inUV;
 }
 

@@ -11,7 +11,7 @@ layout (location=0) out vec4 outColour;
 uniform sampler2D ShadowMap;
 
 in vec4 ShadowCoord;
-
+in vec2 no;
 
 void main ()
 {
@@ -19,4 +19,5 @@ void main ()
         shadeFactor=shadeFactor;// * 0.25 + 0.75;
   outColour=vec4(shadeFactor * Colour.rgb, Colour.a);
   outColour=vec4(shadeFactor);
+  outColour = texture(ShadowMap, no);
 }

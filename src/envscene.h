@@ -43,8 +43,9 @@ private:
     /*************SHADOWS************/
     void loadToLightPOVShader();
     void loadMatricesToShadowShader();
-    ngl::Vec3 m_lightPosition;
-    ngl::Camera m_lightCamera;
+    glm::vec3 m_lightPosition;
+    glm::mat4 m_lightPOVMatrix;
+    glm::mat4 m_lightProj;
     /********************************/
 
     void loadToBananaShader();

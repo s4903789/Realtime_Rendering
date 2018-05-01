@@ -15,7 +15,7 @@ void EnvScene::initGL() noexcept
 {
     // Fire up the NGL machinary (not doing this will make it crash)
     ngl::NGLInit::instance();
-    glDepthRange(0.001, 10000.f);
+    glDepthRange(0.01f, 5.f);
     // Set background colour
     glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
     // enable depth testing for drawing
@@ -24,9 +24,9 @@ void EnvScene::initGL() noexcept
     glEnable(GL_MULTISAMPLE);
 
     //Set up parameters for rendering shadows
-    m_lightPosition = ngl::Vec3(2.f, 2.f, 10.f);
-    m_lightCamera.set(m_lightPosition, ngl::Vec3::zero(), ngl::Vec3::up());
-    m_lightCamera.setShape(45,float(m_width/m_height),0.001,10000.f);
+    m_lightPosition = glm::vec3(2.f, 2.f, -2.f);
+    m_lightPOVMatrix = glm::lookAt(m_lightPosition, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+    m_lightProj = glm::perspective(30.f, float(m_width)/float(m_height), 0.01f, 5.f);
     initFBO();
     glViewport(0, 0, m_width, m_height);
 
@@ -104,8 +104,12 @@ void EnvScene::loadMatricesToShadowShader()
                         1, // how many matrices to transfer
                         true, // whether to transpose matrix
                         glm::value_ptr(N)); // a raw pointer to the data                        
+    glUniform3fv(glGetUniformLocation(pid, "LightPosition"), //location of uniform
+                        1, // how many matrices to transfer
+                        glm::value_ptr(m_lightPosition)); // a raw pointer to the data  
+    
 
-    shader->setUniform("LightPosition",m_lightPosition);
+
     shader->setUniform("inColour",1.0f,1.0f,1.0f,1.0f);
     glUniform1i(glGetUniformLocation(pid, "ShadowMap"), 1);
 
@@ -130,7 +134,7 @@ void EnvScene::loadToLightPOVShader()
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
     GLint pid = shader->getProgramID("ColourProgram");
     shader->use("ColourProgram");
-    glm::mat4 MVP=m_P*m_V*m_model;
+    glm::mat4 MVP= m_lightProj * m_lightPOVMatrix * m_model;
     glUniformMatrix4fv(glGetUniformLocation(pid, "MVP"), //location of uniform
                     1, // how many matrices to transfer
                     false, // whether to transpose matrix
@@ -205,7 +209,7 @@ void EnvScene::loadToBowlShader()
 void EnvScene::paintGL() noexcept
 {
     //------------------------------------------------------------Shadows--------------------------------------------------------------------------------
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glBindFramebuffer(GL_FRAMEBUFFER,m_fboId);
     // bind the texture object to 0 (off )
     glBindTexture(GL_TEXTURE_2D,0);
@@ -214,11 +218,12 @@ void EnvScene::paintGL() noexcept
     glViewport(0,0,1024,1024);
 
     // Clear previous frame values
-    glClear( GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // as we are only rendering depth turn off the colour / alpha
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-    //glCullFace(GL_FRONT);
+    glCullFace(GL_FRONT);
 
     m_model = glm::mat4();
     m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
@@ -247,8 +252,8 @@ void EnvScene::paintGL() noexcept
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Set up the viewport
     glViewport(0,0,m_width,m_height);
-    //glDisable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     //loadToBananaShader();
     m_model = glm::mat4();

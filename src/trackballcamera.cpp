@@ -125,6 +125,7 @@ void TrackballCamera::update() {
         glm::dmat3 R_pitch = glm::mat3_cast(glm::angleAxis(m_pitch, glm::dvec3(1.0, 0.0, 0.0)));
         m_transformedEye = (R_yaw * R_pitch * (m_zoom * (m_eye-m_target))) + m_target;
         m_V = glm::lookAt(glm::vec3(m_transformedEye), glm::vec3(m_target), glm::vec3(0.0f,1.0f,0.0f));
+        m_cubeMatrix = glm::lookAt(glm::vec3(0.f,0.f,0.f), glm::vec3(-m_transformedEye), glm::vec3(0.f, 1.f, 0.f));
         m_dirty = false;
     }
 }

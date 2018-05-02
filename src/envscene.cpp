@@ -38,7 +38,7 @@ void EnvScene::initGL() noexcept
                        "shaders/env_vert.glsl",
                        "shaders/env_frag.glsl");
     shader->use("EnvironmentProgram");
-    /*initTexture(1, m_glossMapTex, "textures/banana_hi_poly.png");
+    initTexture(2, m_glossMapTex, "textures/banana_hi_poly.png");
     shader->setUniform("glossMap", 2);
     initTexture(3, m_bananaNormal, "images/NormalMap(1).jpg");
     shader->setUniform("normal",3);
@@ -46,16 +46,16 @@ void EnvScene::initGL() noexcept
     shader->setUniform("noiseMap", 5);
     initTexture(4, m_ramp, "textures/ramp.tif");
     shader->setUniform("ramp", 4);
-    */
+    
 
     shader->loadShader("PlateProgram",
                        "shaders/plate_vert.glsl",
                        "shaders/plate_frag.glsl");
     shader->use("PlateProgram");
-    //initTexture(6, m_woodNormal, "textures/wood_normal.jpg");
-    //shader->setUniform("woodNormal",6);
-    //initTexture(7, m_woodPerturb, "textures/wood_perturb.jpg");
-    //shader->setUniform("perturbMap", 7);
+    initTexture(6, m_woodNormal, "textures/wood_normal.jpg");
+    shader->setUniform("woodNormal",6);
+    initTexture(7, m_woodPerturb, "textures/wood_perturb.jpg");
+    shader->setUniform("perturbMap", 7);
 
     shader->loadShader("ShadowProgram",
                        "shaders/shadow_vert.glsl",
@@ -209,31 +209,31 @@ void EnvScene::loadToBowlShader()
 void EnvScene::paintGL() noexcept
 {
     //------------------------------------------------------------Shadows--------------------------------------------------------------------------------
-    glEnable(GL_CULL_FACE);
-    glBindFramebuffer(GL_FRAMEBUFFER,m_fboId);
-    // bind the texture object to 0 (off )
-    glBindTexture(GL_TEXTURE_2D,0);
-    // we need to render to the same size as the texture to avoid
-    // distortions
-    glViewport(0,0,1024,1024);
+    // glEnable(GL_CULL_FACE);
+    // glBindFramebuffer(GL_FRAMEBUFFER,m_fboId);
+    // // bind the texture object to 0 (off )
+    // glBindTexture(GL_TEXTURE_2D,0);
+    // // we need to render to the same size as the texture to avoid
+    // // distortions
+    // glViewport(0,0,1024,1024);
 
-    // Clear previous frame values
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // as we are only rendering depth turn off the colour / alpha
-    //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    // // Clear previous frame values
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // // as we are only rendering depth turn off the colour / alpha
+    // //glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-    glCullFace(GL_FRONT);
+    // glCullFace(GL_FRONT);
 
-    m_model = glm::mat4();
-    m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
-    loadToLightPOVShader();
-    m_mesh->draw();
+    // m_model = glm::mat4();
+    // m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
+    // loadToLightPOVShader();
+    // m_mesh->draw();
 
 
-    m_model = glm::mat4();
-    loadToLightPOVShader();
-    m_bowlMesh->draw();
+    // m_model = glm::mat4();
+    // loadToLightPOVShader();
+    // m_bowlMesh->draw();
 
     //------------------------------------------------------------Draw original stuff--------------------------------------------------------------------
     glBindFramebuffer(GL_FRAMEBUFFER,0);
@@ -255,15 +255,15 @@ void EnvScene::paintGL() noexcept
     glDisable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    //loadToBananaShader();
+    loadToBananaShader();
     m_model = glm::mat4();
     m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
-    loadMatricesToShadowShader();
+    //loadMatricesToShadowShader();
     m_mesh->draw();
 
-    //loadToBowlShader();
+    loadToBowlShader();
     m_model = glm::mat4();
-    loadMatricesToShadowShader();
+    //loadMatricesToShadowShader();
     m_bowlMesh->draw();
 }
 

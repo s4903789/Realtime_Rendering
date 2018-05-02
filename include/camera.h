@@ -46,6 +46,7 @@ public:
     /// Functions to retrieve matrices from the camera
     const glm::mat4 &viewMatrix() {return m_V;}
     const glm::mat4 &projMatrix() {return m_P;}
+    const glm::mat4 &cubeMatrix() {return m_cubeMatrix;}
 
     /// Set the initial mouse position manually
     virtual void setInitialMousePos(float mouseX, float mouseY) {m_lastX=mouseX; m_lastY=mouseY;}
@@ -68,7 +69,7 @@ protected:
     double elapsedTime();
 
     /// Our view and project matrices are stored with the camera and retrieved as needed
-    glm::mat4 m_V, m_P;
+    glm::mat4 m_V, m_P, m_cubeMatrix;
 
     /// Last mouse coordinates
     double m_lastX, m_lastY;

@@ -48,6 +48,40 @@ private:
     glm::mat4 m_lightProj;
     /********************************/
 
+    /***********LIGHTS FOR ENV MAP************/
+    std::array<glm::vec3, 13> lightPositions = {glm::vec3(2.271f, 0.955f, -4.715f),
+                                                glm::vec3(2.849f, 0.955f, -2.152f),
+                                                glm::vec3(2.849f, 0.955f, -1.087f),
+                                                glm::vec3(2.849f, -0.726f, -2.282f),
+                                                glm::vec3(2.849f, -0.726f, -1.141f),
+                                                glm::vec3(4.086f, 0.231f, 2.872f), //main light for shadow mapping
+                                                glm::vec3(4.259f, 0.231f, 4.766f),
+                                                glm::vec3(-2.702f, 0.996f, 3.003f),
+                                                glm::vec3(-2.702f, 0.996f, 1.880f),
+                                                glm::vec3(-2.702f, 0.312f, -2.919f),
+                                                glm::vec3(-2.702f, 0.774f, -4.108),
+                                                glm::vec3(1.709f, -1.139f, -2.521f),
+                                                glm::vec3(2.442f, -1.176f, 2.554f)};
+    
+    std::array<glm::vec3, 13> lightColours = {glm::vec3(0.959f, 0.946f, 0.680f),
+                                              glm::vec3(0.454f, 0.442f, 0.374f),
+                                              glm::vec3(0.982f, 0.982f, 0.965f),
+                                              glm::vec3(0.412f, 0.430f, 0.468f),
+                                              glm::vec3(0.882f, 0.890f, 0.849f),
+                                              glm::vec3(0.807f, 0.738f, 0.527f), //main light for shadow mapping
+                                              glm::vec3(0.982f, 0.999f, 0.990f),
+                                              glm::vec3(0.794f, 0.713f, 0.211f),
+                                              glm::vec3(0.804f, 0.854f, 0.286f),
+                                              glm::vec3(0.761f, 0.728f, 0.513f),
+                                              glm::vec3(0.334f, 0.251f, 0.148f),
+                                              glm::vec3(0.476f, 0.228f, 0.105f),
+                                              glm::vec3(0.680f, 0.457f, 0.314f)};
+
+
+
+
+
+
     void loadToBananaShader();
     void loadToBowlShader();
 

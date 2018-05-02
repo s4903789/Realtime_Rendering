@@ -160,6 +160,7 @@ int main() {
         // Set the view-projection matrix
         g_scene.setViewMatrix(g_camera.viewMatrix());
         g_scene.setProjMatrix(g_camera.projMatrix());
+        g_scene.setCubeMatrix(g_camera.projMatrix());
 
         // Draw our GL stuff
         g_scene.paintGL();

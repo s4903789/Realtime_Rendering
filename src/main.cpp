@@ -66,7 +66,7 @@ void key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int
 {
     // Escape exits the application
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);        
+        glfwSetWindowShouldClose(window, true);
     } else {
         // Any other keypress should be handled by our camera
         g_camera.handleKey(key, (action == GLFW_PRESS) );
@@ -91,9 +91,9 @@ void resize_callback(GLFWwindow */*window*/, int width, int height) {
 int main() {
     if (!glfwInit()) {
         // Initialisation failed
-        glfwTerminate();        
+        glfwTerminate();
     }
-    
+
     // Register error callback
     glfwSetErrorCallback(error_callback);
 
@@ -103,9 +103,9 @@ int main() {
 
     // Create our window in a platform agnostic manner
     int width = 1024; int height = 768;
-    GLFWwindow* window = glfwCreateWindow(width, // width 
+    GLFWwindow* window = glfwCreateWindow(width, // width
                                           height, // height
-                                          "My Title", // title 
+                                          "My Title", // title
                                           nullptr, // monitor for full screen
                                           nullptr); // return value on failure
 
@@ -160,7 +160,7 @@ int main() {
         // Set the view-projection matrix
         g_scene.setViewMatrix(g_camera.viewMatrix());
         g_scene.setProjMatrix(g_camera.projMatrix());
-        g_scene.setCubeMatrix(g_camera.projMatrix());
+        g_scene.setCubeMatrix(g_camera.cubeMatrix());
 
         // Draw our GL stuff
         g_scene.paintGL();

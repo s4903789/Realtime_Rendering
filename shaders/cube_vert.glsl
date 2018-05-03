@@ -1,4 +1,4 @@
-#version 420
+#version 430
 
 // The vertex position attribute
 layout (location=0) in vec3 VertexPosition;
@@ -16,22 +16,30 @@ smooth out vec2 FragmentTexCoord;
 
 out vec4 worldPos;
 
-uniform mat4 cubeMV;            // model view matrix calculated in the App
-uniform mat4 cubeMVP;           // model view projection calculated in the app
-uniform mat3 cubeN;             // normal matrix calculated in the app
+uniform mat4 MV;            // model view matrix calculated in the App
+uniform mat4 MVP;           // model view projection calculated in the app
+uniform mat3 normalMatrix;             // normal matrix calculated in the app
 
 void main() {
     // Transform the vertex normal by the inverse transpose modelview matrix
-    FragmentNormal = normalize(cubeN * VertexNormal);
 
-    worldPos = cubeMV * vec4(VertexPosition, 1.f);
+    FragmentNormal = normalize(normalMatrix * VertexNormal);
+
+    worldPos = MV * vec4(VertexPosition, 1.f);
 
     // Compute the unprojected vertex position
-    FragmentPosition = vec3(cubeMVP * vec4(VertexPosition + vec3(0, 0, 1), 1.0) );
+    FragmentPosition = vec3(MVP * vec4(VertexPosition, 1.0)).xyz;
+
+    //worldPos = vec4(FragmentPosition, 1);
 
     // Copy across the texture coordinates
     FragmentTexCoord = TexCoord;
 
     // Compute the position of the vertex
-    gl_Position = cubeMVP * vec4(VertexPosition,1.0);
+    gl_Position = MVP * vec4(VertexPosition,1.0);
 }
+
+
+
+
+

@@ -43,6 +43,7 @@ private:
     /*************SHADOWS************/
     void loadToLightPOVShader();
     void loadMatricesToShadowShader();
+    void loadToEnvironment();
     glm::vec3 m_lightPosition;
     glm::mat4 m_lightPOVMatrix;
     glm::mat4 m_lightProj;

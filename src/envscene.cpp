@@ -223,6 +223,28 @@ void EnvScene::loadToBowlShader()
                        glm::value_ptr(N)); // a raw pointer to the data
 }
 
+void EnvScene::loadToEnvironment()
+{
+  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+  (*shader)["CubeProgram"]->use();
+  GLint pid = shader->getProgramID("CubeProgram");
+
+  glm::mat4 M, MV, MVP;
+
+  M = glm::scale(M, glm::vec3(2.f, 2.f, 2.f));
+  MV = m_cubeMatrix * M;
+  MVP = m_P * MV;
+
+  glUniformMatrix4fv(glGetUniformLocation(pid, "MVP"),
+                     1,
+                     false,
+                     glm::value_ptr(MVP));
+  glUniformMatrix4fv(glGetUniformLocation(pid, "MV"),
+                     1,
+                     false,
+                     glm::value_ptr(MV));
+}
+
 void EnvScene::paintGL() noexcept
 {
     //------------------------------------------------------------Shadows--------------------------------------------------------------------------------
@@ -285,28 +307,9 @@ void EnvScene::paintGL() noexcept
     //loadMatricesToShadowShader();
     //m_bowlMesh->draw();
 
-    //drawing the cube for the environment
-    ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-    GLint pid = shader->getProgramID("CubeProgram");
-    glm::mat4 cubeM, cubeMV, cubeMVP;
-    cubeM = glm::scale(cubeM, glm::vec3(10.f, 10.f, 10.f));
-    cubeMV = m_cubeMatrix * cubeM;
-    cubeMVP = m_P * cubeMV;
-   // std::cout<<"matrix multiplication \n";
-    // Set this MVP on the GPU
-    glUniformMatrix4fv(glGetUniformLocation(pid, "cubeMVP"), //location of uniform
-                       1, // how many matrices to transfer
-                       false, // whether to transpose matrix
-                       glm::value_ptr(cubeMVP)); // a raw pointer to the data
-    glUniformMatrix4fv(glGetUniformLocation(pid, "cubeMV"), //location of uniform
-                       1, // how many matrices to transfer
-                       false, // whether to transpose matrix
-                       glm::value_ptr(cubeMV)); // a raw pointer to the data
-    
-    
+    loadToEnvironment();
     ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
-    shader->use("CubeProgram");
-    prim->draw("teapot");
+    prim->draw("cube");
     
 }
 
@@ -331,7 +334,7 @@ void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *fil
                 img.width(),      // Width in pixels
                 img.height(),     // Height in pixels
                 0,                // Border
-                GL_RGB,          // Format of the pixel data
+                img.format(),          // Format of the pixel data
                 GL_UNSIGNED_BYTE, // Data type of pixel data
                 img.getPixels()); // Pointer to image data in memory
 
@@ -392,12 +395,12 @@ void EnvScene::initEnvironment() {
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_envTex);
 
     // Now load up the sides of the cube
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "images/sky_zneg.png");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "images/sky_zpos.png");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "images/sky_ypos.png");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "images/sky_yneg.png");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "images/sky_xneg.png");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_X, "images/sky_xpos.png");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "textures/nz.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "textures/pz.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "textures/py.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "textures/ny.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "textures/nx.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_X, "textures/px.jpg");
 
     // Generate mipmap levels
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
@@ -415,9 +418,9 @@ void EnvScene::initEnvironment() {
     // Set our cube map texture to on the shader so we can use it
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
     shader->use("EnvironmentProgram");
-    shader->setUniform("envMap", 8);
+    shader->setUniform("envMap", 0);
     shader->use("CubeProgram");
-    shader->setUniform("envMap", 8);
+    shader->setUniform("envMap", 0);
 }
 
 /**
@@ -440,7 +443,7 @@ void EnvScene::initEnvironmentSide(GLenum target, const char *filename) {
       img.width(),      // Width in pixels
       img.height(),     // Height in pixels
       0,                // Border
-      GL_RGBA,          // Format of the pixel data
+      img.format(),          // Format of the pixel data
       GL_UNSIGNED_BYTE, // Data type of pixel data
       img.getPixels()   // Pointer to image data in memory
     );

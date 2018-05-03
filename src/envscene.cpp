@@ -16,7 +16,7 @@ void EnvScene::initGL() noexcept
 {
     // Fire up the NGL machinary (not doing this will make it crash)
     ngl::NGLInit::instance();
-    glDepthRange(0.01f, 5.f);
+    glDepthRange(0.01f, 1000.f);
     // Set background colour
     glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
     // enable depth testing for drawing
@@ -27,7 +27,7 @@ void EnvScene::initGL() noexcept
     //Set up parameters for rendering shadows
     m_lightPosition = glm::vec3(2.f, 2.f, -2.f);
     m_lightPOVMatrix = glm::lookAt(m_lightPosition, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-    m_lightProj = glm::perspective(30.f, float(m_width)/float(m_height), 0.01f, 5.f);
+    m_lightProj = glm::perspective(30.f, float(m_width)/float(m_height), 0.01f, 1000.f);
     initFBO();
     glViewport(0, 0, m_width, m_height);
 
@@ -67,6 +67,12 @@ void EnvScene::initGL() noexcept
                        "shaders/colour_frag.glsl");
     shader->use("ColourProgram");
     shader->setUniform("Colour",1.0f,0.0f,0.0f,1.0f);
+
+    shader->loadShader("CubeProgram",
+                       "shaders/cube_vert.glsl",
+                       "shaders/cube_frag.glsl");
+
+    initEnvironment();
 
     //Initialising the obj for the banana along with its texture
     m_mesh.reset(new ngl::Obj("models/small_banana_obj.obj"));//, "textures/banana_hi_poly.png"));
@@ -256,8 +262,8 @@ void EnvScene::paintGL() noexcept
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // bind the shadow texture
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_fboTextureId);
+    //glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_2D, m_fboTextureId);
     //-------------------------------------------------------
     // Clear the screen (fill with our glClearColor)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -270,14 +276,38 @@ void EnvScene::paintGL() noexcept
     m_model = glm::mat4();
     m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
     //loadMatricesToShadowShader();
-    m_mesh->draw();
+    //m_mesh->draw();
     //ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
     //prim->draw("teapot");
 
     loadToBowlShader();
     m_model = glm::mat4();
     //loadMatricesToShadowShader();
-    m_bowlMesh->draw();
+    //m_bowlMesh->draw();
+
+    //drawing the cube for the environment
+    ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+    GLint pid = shader->getProgramID("CubeProgram");
+    glm::mat4 cubeM, cubeMV, cubeMVP;
+    cubeM = glm::scale(cubeM, glm::vec3(10.f, 10.f, 10.f));
+    cubeMV = m_cubeMatrix * cubeM;
+    cubeMVP = m_P * cubeMV;
+   // std::cout<<"matrix multiplication \n";
+    // Set this MVP on the GPU
+    glUniformMatrix4fv(glGetUniformLocation(pid, "cubeMVP"), //location of uniform
+                       1, // how many matrices to transfer
+                       false, // whether to transpose matrix
+                       glm::value_ptr(cubeMVP)); // a raw pointer to the data
+    glUniformMatrix4fv(glGetUniformLocation(pid, "cubeMV"), //location of uniform
+                       1, // how many matrices to transfer
+                       false, // whether to transpose matrix
+                       glm::value_ptr(cubeMV)); // a raw pointer to the data
+    
+    
+    ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
+    shader->use("CubeProgram");
+    prim->draw("teapot");
+    
 }
 
 void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *filename) {
@@ -385,6 +415,8 @@ void EnvScene::initEnvironment() {
     // Set our cube map texture to on the shader so we can use it
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
     shader->use("EnvironmentProgram");
+    shader->setUniform("envMap", 0);
+    shader->use("CubeProgram");
     shader->setUniform("envMap", 0);
 }
 

@@ -7,6 +7,6 @@ uniform vec4 Colour;
 
 void main ()
 {
-	outColour = Colour;
+	outColour = vec4(1.f);
 }
 

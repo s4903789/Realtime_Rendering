@@ -7,6 +7,7 @@
 #include <ngl/ShaderLib.h>
 #include <ngl/Image.h>
 #include "glm/ext.hpp"
+#include <ngl/NGLStream.h>
 
 
 EnvScene::EnvScene() : Scene() {}
@@ -180,6 +181,16 @@ void EnvScene::loadToBananaShader()
                        1, // how many matrices to transfer
                        false, // whether to transpose matrix
                        glm::value_ptr(glm::inverse(m_V))); // a raw pointer to the data
+
+    for(int i = 0; i < 13; i++)
+    {
+        glUniform3fv(glGetUniformLocation(pid, ("lightPositions[" + std::to_string(i) + "]").c_str() ),
+                     3,
+                     glm::value_ptr(m_lightPositions[i]));
+        glUniform3fv(glGetUniformLocation(pid, ("lightColours[" + std::to_string(i) + "]").c_str() ),
+                     3,
+                     glm::value_ptr(m_lightColours[i]));
+    } 
 }
 
 void EnvScene::loadToBowlShader()
@@ -260,6 +271,8 @@ void EnvScene::paintGL() noexcept
     m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
     //loadMatricesToShadowShader();
     m_mesh->draw();
+    //ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
+    //prim->draw("teapot");
 
     loadToBowlShader();
     m_model = glm::mat4();

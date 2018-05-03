@@ -49,7 +49,7 @@ private:
     /********************************/
 
     /***********LIGHTS FOR ENV MAP************/
-    std::array<glm::vec3, 13> lightPositions = {glm::vec3(2.271f, 0.955f, -4.715f),
+    std::array<glm::vec3, 13> m_lightPositions = {glm::vec3(2.271f, 0.955f, -4.715f),
                                                 glm::vec3(2.849f, 0.955f, -2.152f),
                                                 glm::vec3(2.849f, 0.955f, -1.087f),
                                                 glm::vec3(2.849f, -0.726f, -2.282f),
@@ -63,7 +63,7 @@ private:
                                                 glm::vec3(1.709f, -1.139f, -2.521f),
                                                 glm::vec3(2.442f, -1.176f, 2.554f)};
     
-    std::array<glm::vec3, 13> lightColours = {glm::vec3(0.959f, 0.946f, 0.680f),
+    std::array<glm::vec3, 13> m_lightColours = {glm::vec3(0.959f, 0.946f, 0.680f),
                                               glm::vec3(0.454f, 0.442f, 0.374f),
                                               glm::vec3(0.982f, 0.982f, 0.965f),
                                               glm::vec3(0.412f, 0.430f, 0.468f),

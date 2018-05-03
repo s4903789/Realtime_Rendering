@@ -11,7 +11,7 @@ layout (location=2) in vec3 VertexNormal;
 
 uniform sampler2D noiseMap;
 // These attributes are passed onto the shader (should they all be smoothed?)
-smooth out vec3 FragmentPosition;
+smooth out vec4 FragmentPosition;
 smooth out vec3 FragmentNormal;
 smooth out vec2 FragmentTexCoord;
 
@@ -26,7 +26,7 @@ void main() {
     // Compute the unprojected vertex position
     vec3 noiseTex = texture(noiseMap, vec2(TexCoord.x, -TexCoord.y)).rgb;
     vec3 PerturbedVertexPosition = VertexPosition + (VertexNormal * noiseTex * -0.02);
-    FragmentPosition = vec3(MV * vec4(PerturbedVertexPosition, 1.0) );
+    FragmentPosition = MV * vec4(PerturbedVertexPosition, 1.0);
 
     // Copy across the texture coordinates
     FragmentTexCoord = TexCoord;

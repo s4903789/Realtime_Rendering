@@ -1,7 +1,7 @@
 #version 420 core
 
 // Attributes passed on from the vertex shader
-smooth in vec3 FragmentPosition;
+smooth in vec4 FragmentPosition;
 smooth in vec3 FragmentNormal;
 smooth in vec2 FragmentTexCoord;
 
@@ -196,24 +196,9 @@ float contrast(float _value)
 }
 
 
-void main () {
-    // Calculate the normal (this is the expensive bit in Phong)
-    vec3 n = normalize( FragmentNormal );
-
-    // Calculate the eye vector
-    vec3 v = normalize(vec3(-FragmentPosition));
-
-    vec2 minusZ = vec2(FragmentTexCoord.x, -FragmentTexCoord.y);
-    vec3 normalValue = normalize(texture(normal, minusZ).xyz);
-    float cosAngle = dot(n, normalValue);
-    float angle = acos(cosAngle);
-    n = rotate(v,n,angle);
-    //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
-    
-    /*******************************************************************************/
-    vec3 p = FragmentPosition.xyz; /// FragmentPosition.w;
-      // Calculate the light vector
-    vec3 s = normalize( vec3(Light.Position) - p); //this is s for the h equation
+vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 v, vec2 fragTexCoord)
+{
+    vec3 s = normalize(vec3(lightPos) - p); //this is s for the h equation
 
     // Reflect the light about the surface normal
     vec3 r = reflect( -s, n );
@@ -221,15 +206,21 @@ void main () {
     //creating a roughness value
     vec3 h = normalize(v+s);
 
+    //Creating the lookup vector for cube map.
+    vec3 lookup = reflect(v, n);
+
     // Distribution function
-    float m = 0.2;
+    
     /***********************************************************************/
     //setting up roughness for when it encounters speckles, it should be rougher
-    vec4 roughColourCheck = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
-    /*if(roughColourCheck.r < 0.57)
-    {
-        m = 1.0;
-    }*/
+    //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
+        vec4 roughColourCheck = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+        float m = 0.2;
+        if(roughColourCheck.r < 0.57)
+        {
+            m = 1.0;
+        }
+
     float mSquared = m*m;
     float NdotH = dot(n, h); //dot product of surface and light position
     float VdotH = dot(v, h); //dot product of surface and light position
@@ -264,29 +255,63 @@ void main () {
     float noise = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
     //float spec = G * F * D / NdotV;
     spec *= noise * noise;
+    spec = max(spec, 0.f);
     vec3 LightIntensity = (
-            Light.La * Material.Ka +
-            Light.Ld * Material.Kd * max( dot(s, n), 0.0 ) +
-            Light.Ls * Material.Ks * spec);  
+            lightCol * max( dot(s, n), 0.0 ) +
+            lightCol * spec);
+    
+    float dist = length(lightPos - FragmentPosition.xyz);
+    
+    float falloff = 1/pow(dist, 2);
+
+    return LightIntensity*vec3(falloff, falloff, falloff);
+}
+
+
+void main () {
+    // Calculate the normal (this is the expensive bit in Phong)
+    vec3 n = normalize( FragmentNormal );
+
+    // Calculate the eye vector
+    vec3 v = normalize(vec3(-FragmentPosition));
+
+    vec2 minusZ = vec2(FragmentTexCoord.x, -FragmentTexCoord.y);
+    vec3 normalValue = normalize(texture(normal, minusZ).xyz);
+    float cosAngle = dot(n, normalValue);
+    float angle = acos(cosAngle);
+    n = rotate(v,n,angle);
+    //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
+    vec4 roughColourCheck = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+    float m = 0.2;
+    if(roughColourCheck.r < 0.57)
+    {
+        m = 1.0;
+    }
+    
+    /*******************************************************************************/
+    vec3 p = normalize(FragmentPosition.xyz / FragmentPosition.w);
+      // Calculate the light vector
+
+  
 
     /************************************************************************/
 
     // Here you will need to use the environment map and with a lookup vector
     // which you've determined to get a colour to display.
-    vec3 lookup = reflect(v, n);
-    vec4 mapColour = texture(envMap, lookup);
+    
+    //vec4 mapColour = texture(envMap, lookup);
     // Next you will need to use the LOD value to "smudge" the incoming light
     // from the environment.
-    float blurValue = texture(glossMap, FragmentTexCoord).x * 8;
-    vec4 bananaDiffuse = texture(banana, FragmentTexCoord);
-    vec4 lodMapColour = textureLod(envMap, lookup, blurValue);
-    lodMapColour = lodMapColour * texture(banana, FragmentTexCoord);
+
+    //vec4 lodMapColour = textureLod(envMap, lookup, blurValue);
+    //lodMapColour = lodMapColour * texture(banana, FragmentTexCoord);
     //lodMapColour = lodMapColour + texture(banana, FragmentTexCoord);
     // Next you will need to used a gloss map to determine the level of "smudge"
 
     //FragColour = vec4(lodMapColour.xyz*LightIntensity,1.0); //colour;
 
-
+    float blurValue = texture(glossMap, FragmentTexCoord).x * 8;
+    vec4 bananaDiffuse = texture(banana, FragmentTexCoord);
     float speckleNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 20.0f, 0.0f, 1.0f); //iterations, persistence, frequency, low, high
     float maskNoise1 = sumOctave(FragmentTexCoord, 12, 0.5f, 30.0f, 0.0f, 1.0f);
     float maskNoise2 = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
@@ -318,16 +343,7 @@ void main () {
       bruiseNoise = 1.f;
     }
     bruiseNoise = (bruiseNoise * -1) + 1;
-    //BRUISES ARE THE WHITE BITS YOU MORON
 
-    //upping the contrast
-
-   /* float root = sqrt(2*bruiseNoise - 1);
-    float cuberoot = pow(root, 0.3333);
-    float contrastNoise = 0.5 * (cuberoot + 1);*/
-   
-    
-    //speckleNoise = speckleNoise + patchNoise;
     if (speckleNoise > 1.f)
     {
       speckleNoise = 1.0f;
@@ -346,10 +362,18 @@ void main () {
     vec4 patchColour = vec4(0.176, 0.086, 0.039, 1.f);
     vec4 blend = patchColour * patchNoise + FragColour * (1.0f - patchNoise);
     blend = speckleColour * speckleNoise + blend * (1.0f - speckleNoise);
-    //vec4 blend2 = blend * patchNoiseColoured + FragColour * (1.0 - patchNoiseColoured);
-    //testing noise
+
+  //////////////////////LIGHTS/////////////////////////////////////////////
+  vec3 totalLightIntensity;
+  for(int i=0; i<13; i++)
+  {
+    totalLightIntensity += calculateLightIntensity(lightPositions[i], lightColours[i], p, n, v, FragmentTexCoord);
+  }
+
+
+    totalLightIntensity*=2;
     FragColour = blend * vec4(bruiseNoiseColour);
-    FragColour*= vec4(LightIntensity, 1.0);
+    FragColour*= vec4(totalLightIntensity, 1.0);
 
     
 }

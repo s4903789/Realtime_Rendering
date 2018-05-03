@@ -415,9 +415,9 @@ void EnvScene::initEnvironment() {
     // Set our cube map texture to on the shader so we can use it
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
     shader->use("EnvironmentProgram");
-    shader->setUniform("envMap", 0);
+    shader->setUniform("envMap", 8);
     shader->use("CubeProgram");
-    shader->setUniform("envMap", 0);
+    shader->setUniform("envMap", 8);
 }
 
 /**

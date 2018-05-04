@@ -3,7 +3,7 @@
 Camera::Camera() :
     m_fovy(glm::pi<float>() * 0.25f),
     m_zNear(1.0f),
-    m_zFar(8.0f),
+    m_zFar(80.0f),
     m_lastX(0.0),
     m_lastY(0.0)
 {

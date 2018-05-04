@@ -231,7 +231,7 @@ void EnvScene::loadToEnvironment()
 
   glm::mat4 M, MV, MVP;
 
-  M = glm::scale(M, glm::vec3(2.f, 2.f, 2.f));
+  M = glm::scale(M, glm::vec3(80.f, 80.f, 80.f));
   MV = m_cubeMatrix * M;
   MVP = m_P * MV;
 
@@ -298,14 +298,14 @@ void EnvScene::paintGL() noexcept
     m_model = glm::mat4();
     m_model = glm::translate(m_model, glm::vec3(0.f, 0.2f, 0.f));
     //loadMatricesToShadowShader();
-    //m_mesh->draw();
+    m_mesh->draw();
     //ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();
     //prim->draw("teapot");
 
     loadToBowlShader();
     m_model = glm::mat4();
     //loadMatricesToShadowShader();
-    //m_bowlMesh->draw();
+    m_bowlMesh->draw();
 
     loadToEnvironment();
     ngl::VAOPrimitives *prim = ngl::VAOPrimitives::instance();

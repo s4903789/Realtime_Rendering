@@ -42,7 +42,6 @@ public:
     /// Set the projection matrix from somewhere else
     void setProjMatrix(glm::mat4 _P) {m_P = _P;}
 
-    /// Set the cube matrix
     void setCubeMatrix(glm::mat4 _cubeMatrix) {m_cubeMatrix = _cubeMatrix;}
 
 protected:

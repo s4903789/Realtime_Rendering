@@ -19,6 +19,7 @@ uniform sampler2D tex;
 //Setting the light colour and positions for all the lights corresponding to the env cube
 uniform vec3 lightPositions[13];
 uniform vec3 lightColours[13];
+uniform mat4 MV;
 // Set the maximum environment level of detail (cannot be queried from GLSL apparently)
 // The mipmap level is determined by log_2(resolution), so if the texture was 4x4,
 // there would be 8 mipmap levels (128x128,64x64,32x32,16x16,8x8,4x4,2x2,1x1).
@@ -198,7 +199,8 @@ float contrast(float _value)
 
 vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 v, vec2 fragTexCoord)
 {
-    vec3 s = normalize(vec3(lightPos) - p); //this is s for the h equation
+    lightPos = (MV * vec4(lightPos, 1.f)).xyz;
+    vec3 s = normalize(lightPos - p); //this is s for the h equation
 
     // Reflect the light about the surface normal
     vec3 r = reflect( -s, n );
@@ -240,11 +242,11 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     float G = min(1.0, min(g1, g2));   
 
     // Schlick approximation
-    float F0 = 1.0; // Fresnel reflectance at normal incidence
+    float F0 = 0.25; // Fresnel reflectance at normal incidence
     float F_r = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 1.0; // Fresnel reflectance at normal incidence
+    F0 = 0.25; // Fresnel reflectance at normal incidence
     float F_g = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 1.0; // Fresnel reflectance at normal incidence
+    F0 = 0.25; // Fresnel reflectance at normal incidence
     float F_b = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
     
     // Compute the light from the ambient, diffuse and specular components
@@ -262,7 +264,9 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     
     float dist = length(lightPos - FragmentPosition.xyz);
     
-    float falloff = 1/pow(dist, 2);
+    //float falloff = 1.f/pow(dist, 2.f);
+    float distLess = dist / 1.35f;
+    float falloff = 1.f/(distLess * distLess);
 
     return LightIntensity*vec3(falloff, falloff, falloff);
 }
@@ -289,7 +293,7 @@ void main () {
     }
     
     /*******************************************************************************/
-    vec3 p = normalize(FragmentPosition.xyz / FragmentPosition.w);
+    vec3 p = FragmentPosition.xyz / FragmentPosition.w;
       // Calculate the light vector
 
   

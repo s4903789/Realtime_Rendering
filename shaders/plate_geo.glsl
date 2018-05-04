@@ -5,6 +5,7 @@ layout(triangle_strip, max_vertices = 256) out;
 #define M_PI 3.1415926535897932384626433832795
 
 uniform mat4 MVP;
+uniform mat4 MV;
 uniform mat3 N; 
 smooth out vec3 plateNormal;
 smooth out vec3 platePosition;

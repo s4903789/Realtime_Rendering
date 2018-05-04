@@ -3,14 +3,16 @@
 /// @brief our output fragment colour
 layout (location=0) out vec4 FragColour;
 
-smooth in vec3 FragmentPosition;
+smooth in vec4 FragmentPosition;
 smooth in vec3 FragmentNormal;
 smooth in vec2 FragmentTexCoord;
 
 // A texture sampler to store the normal information
 uniform sampler2D woodNormal;
 
-
+uniform vec3 lightPositions[16];
+uniform vec3 lightColours[16];
+uniform mat4 MV;
 uniform mat4 MVP;
 uniform vec3 LightPos;
 uniform mat3 N; 
@@ -172,10 +174,78 @@ vec3 rotate(vec3 v, vec3 axis, float angle) {
 	return (m * vec4(v, 1.0)).xyz;
 }
 
+vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 v, vec2 fragTexCoord)
+{
+  //lightCol = lightCol / 5;
+    lightPos = (MV * vec4(lightPos, 1.f)).xyz;
+    vec3 s = normalize(lightPos - p); //this is s for the h equation
+
+    // Reflect the light about the surface normal
+    vec3 r = reflect( -s, n );
+
+    //creating a roughness value
+    vec3 h = normalize(v+s);
+
+    //Creating the lookup vector for cube map.
+    vec3 lookup = reflect(v, n);
+
+    // Distribution function
+     
+    float m = 0.3;
+  
+    /***********************************************************************/
+
+
+    float mSquared = m*m;
+    float NdotH = dot(n, h); //dot product of surface and light position
+    float VdotH = dot(v, h); //dot product of surface and light position
+    float NdotV = dot(n, v); //dot product of surface and light position
+    float NdotL = dot(n, s); //dot product of surface and light position
+    
+    float r1  = 1.0 / (4.0f * mSquared * pow(NdotH, 4.0f));
+    float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
+    float D = r1 * exp(r2);
+    
+    // Geometric attenuation    
+    float NH2 = 2.0 * NdotH;
+    float eps = 0.0001f;
+    float invVdotH = (VdotH > eps)?(1.0 / VdotH):1.0;    
+    float g1 = (NH2 * NdotV) * invVdotH;
+    float g2 = (NH2 * NdotL) * invVdotH;
+    float G = min(1.0, min(g1, g2));   
+
+    // Schlick approximation
+    float F0 = 1.0f; // Fresnel reflectance at normal incidence
+    float F_r = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
+    F0 = 1.0; // Fresnel reflectance at normal incidence
+    float F_g = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
+    F0 = 1.0; // Fresnel reflectance at normal incidence
+    float F_b = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
+    
+    // Compute the light from the ambient, diffuse and specular components
+    
+    vec3 spec = G * vec3(F_r, F_g, F_b) * D / NdotV;
+  
+    spec = max(spec, 0.f);
+    vec3 LightIntensity = (
+            lightCol * max( dot(s, n), 0.0 ) +
+            lightCol * spec);
+    
+    float dist = length(lightPos - FragmentPosition.xyz);
+    
+    //float falloff = 1.f/pow(dist, 2.f);
+    float distLess = dist / 1.15f;
+    float falloff = 1.f/(distLess * distLess);
+    return LightIntensity*vec3(falloff, falloff, falloff);
+}
+
+
+
 void main()
 {
+   vec3 p = FragmentPosition.xyz / FragmentPosition.w;
         // Calculate the light vector
-    vec3 s = normalize( vec3(Light.Position) - FragmentPosition ); 
+    vec3 s = normalize( vec3(Light.Position) - FragmentPosition.xyz ); 
 
     // Calculate the view vector
     vec3 v = vec3(0.f, 0.f, 1.f);
@@ -201,12 +271,6 @@ void main()
     n = rotate(n,v, angle);
 
     // Reflect the light about the surface normal
-    vec3 r = reflect( -s, n );
-        vec3 LightIntensity = (
-            Light.La * Material.Ka +
-            Light.Ld * Material.Kd * max( dot(s, n), 0.0 ) +
-            Light.Ls * Material.Ks * pow( max( dot(r,v), 0.0 ), Material.Shininess ));
-
     vec3 darkWood = vec3(0.015f, 0.007f, 0.001f);
     darkWood+=vec3(0.05f, 0.05f, 0.05f);
     vec3 lightWood = vec3(0.159f, 0.069f, 0.012f);
@@ -222,7 +286,17 @@ void main()
     
     l=sqrt((PP.x*PP.x) + (PP.y*PP.y));
     FragColour = vec4(mix(darkWood, lightWood, mod(l*8, 1)),1.f);
-    FragColour *= vec4(LightIntensity, 1.0);
+
+    vec3 totalLightIntensity;
+    for(int i=0; i<16; i++)
+    {
+      totalLightIntensity += calculateLightIntensity(lightPositions[i]*50, lightColours[i], p, n, v, FragmentTexCoord);
+    }
+    totalLightIntensity*=5000;
+
+    FragColour *= vec4(totalLightIntensity, 1.0);
+    //FragColour = vec4(lightColours[0], 1.0);
+    //FragColour *= vec4(LightIntensity, 1.0);
    //FragColour = vec4(n, 1.f);
 
     

@@ -17,8 +17,8 @@ uniform sampler2D ramp;
 uniform sampler2D tex;
 
 //Setting the light colour and positions for all the lights corresponding to the env cube
-uniform vec3 lightPositions[13];
-uniform vec3 lightColours[13];
+uniform vec3 lightPositions[16];
+uniform vec3 lightColours[16];
 uniform mat4 MV;
 // Set the maximum environment level of detail (cannot be queried from GLSL apparently)
 // The mipmap level is determined by log_2(resolution), so if the texture was 4x4,
@@ -242,11 +242,11 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     float G = min(1.0, min(g1, g2));   
 
     // Schlick approximation
-    float F0 = 0.25; // Fresnel reflectance at normal incidence
+    float F0 = 0.1; // Fresnel reflectance at normal incidence
     float F_r = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 0.25; // Fresnel reflectance at normal incidence
+    F0 = 0.1; // Fresnel reflectance at normal incidence
     float F_g = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 0.25; // Fresnel reflectance at normal incidence
+    F0 = 0.1; // Fresnel reflectance at normal incidence
     float F_b = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
     
     // Compute the light from the ambient, diffuse and specular components
@@ -265,7 +265,7 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     float dist = length(lightPos - FragmentPosition.xyz);
     
     //float falloff = 1.f/pow(dist, 2.f);
-    float distLess = dist / 1.35f;
+    float distLess = dist / 1.6f;
     float falloff = 1.f/(distLess * distLess);
 
     return LightIntensity*vec3(falloff, falloff, falloff);
@@ -369,13 +369,14 @@ void main () {
 
   //////////////////////LIGHTS/////////////////////////////////////////////
   vec3 totalLightIntensity;
-  for(int i=0; i<13; i++)
+  for(int i=0; i<16; i++)
   {
-    totalLightIntensity += calculateLightIntensity(lightPositions[i], lightColours[i], p, n, v, FragmentTexCoord);
+    totalLightIntensity += calculateLightIntensity(lightPositions[i]*50, lightColours[i], p, n, v, FragmentTexCoord);
   }
 
 
-    totalLightIntensity*=2;
+    totalLightIntensity*=3000;
+
     FragColour = blend * vec4(bruiseNoiseColour);
     FragColour*= vec4(totalLightIntensity, 1.0);
 

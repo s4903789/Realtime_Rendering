@@ -14,7 +14,7 @@ uniform mat4 MVP;
 uniform vec3 LightPos;
 uniform mat3 N; 
 //uniform mat3 VertexNormal;
-smooth out vec3 FragmentPosition;
+smooth out vec4 FragmentPosition;
 out vec3 FragmentNormal;
 out vec3 P;
 out vec3 V;
@@ -32,8 +32,8 @@ void main()
 
 
     vec3 noiseTex = texture(perturbMap, vec2(TexCoord.x, -TexCoord.y)).rgb;
-    vec3 PerturbedVertexPosition = VertexPosition + (VertexNormal * noiseTex * -0.015f);
-    FragmentPosition = vec3(MV * vec4(PerturbedVertexPosition, 1.0) );
+    vec3 PerturbedVertexPosition = VertexPosition + (VertexNormal * noiseTex * -0.0175f);
+    FragmentPosition = MV * vec4(PerturbedVertexPosition, 1.0);
 
 
 
@@ -43,10 +43,3 @@ void main()
     gl_Position = MVP * vec4(PerturbedVertexPosition,1.0);
 }
 
-/*layout (location = 0) in vec3 inVert;
-uniform mat4 MVP;
-
-void main(void)
-{
-    gl_Position = MVP * vec4(inVert, 1.f);
-}*/

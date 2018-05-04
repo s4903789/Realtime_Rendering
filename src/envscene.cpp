@@ -53,7 +53,7 @@ void EnvScene::initGL() noexcept
                        "shaders/plate_vert.glsl",
                        "shaders/plate_frag.glsl");
     shader->use("PlateProgram");
-    initTexture(6, m_woodNormal, "textures/wood_normal.jpg");
+    initTexture(6, m_woodNormal, "textures/walnut.jpg");
     shader->setUniform("woodNormal",6);
     initTexture(7, m_woodPerturb, "textures/wood_perturb.jpg");
     shader->setUniform("perturbMap", 7);
@@ -188,7 +188,7 @@ void EnvScene::loadToBananaShader()
                        false, // whether to transpose matrix
                        glm::value_ptr(glm::inverse(m_V))); // a raw pointer to the data
 
-    for(int i = 0; i < 13; i++)
+    for(int i = 0; i < 16; i++)
     {
         glUniform3fv(glGetUniformLocation(pid, ("lightPositions[" + std::to_string(i) + "]").c_str() ),
                      3,
@@ -217,10 +217,24 @@ void EnvScene::loadToBowlShader()
                     1, // how many matrices to transfer
                     false, // whether to transpose matrix
                     glm::value_ptr(MVP)); // a raw pointer to the data
+    glUniformMatrix4fv(glGetUniformLocation(pid, "MV"), //location of uniform
+                    1, // how many matrices to transfer
+                    false, // whether to transpose matrix
+                    glm::value_ptr(MV)); // a raw pointer to the data
     glUniformMatrix3fv(glGetUniformLocation(pid, "N"), //location of uniform
                        1, // how many matrices to transfer
                        true, // whether to transpose matrix
                        glm::value_ptr(N)); // a raw pointer to the data
+
+    for(int i = 0; i < 16; i++)
+    {
+        glUniform3fv(glGetUniformLocation(pid, ("lightPositions[" + std::to_string(i) + "]").c_str() ),
+                     3,
+                     glm::value_ptr(m_lightPositions[i]));
+        glUniform3fv(glGetUniformLocation(pid, ("lightColours[" + std::to_string(i) + "]").c_str() ),
+                     3,
+                     glm::value_ptr(m_lightColours[i]));
+    } 
 }
 
 void EnvScene::loadToEnvironment()
@@ -397,8 +411,8 @@ void EnvScene::initEnvironment() {
     // Now load up the sides of the cube
     initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "textures/nz.jpg");
     initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "textures/pz.jpg");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "textures/py.jpg");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "textures/ny.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "textures/ny.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "textures/py.jpg");
     initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "textures/nx.jpg");
     initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_X, "textures/px.jpg");
 

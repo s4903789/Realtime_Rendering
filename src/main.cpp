@@ -67,7 +67,18 @@ void key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int
     // Escape exits the application
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
-    } else {
+    }
+    else if(key == GLFW_KEY_W && action == GLFW_PRESS)
+    {
+        
+        g_scene.m_displacementFactor += 0.1f;
+    }
+    else if(key == GLFW_KEY_E && action == GLFW_PRESS) 
+    {
+        g_scene.m_noiseFactor +=0.1f;
+    }
+    else
+    {
         // Any other keypress should be handled by our camera
         g_camera.handleKey(key, (action == GLFW_PRESS) );
     }
@@ -161,6 +172,7 @@ int main() {
         g_scene.setViewMatrix(g_camera.viewMatrix());
         g_scene.setProjMatrix(g_camera.projMatrix());
         g_scene.setCubeMatrix(g_camera.cubeMatrix());
+        g_scene.setAimedEye(g_camera.aimedEye());
 
         // Draw our GL stuff
         g_scene.paintGL();

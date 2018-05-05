@@ -22,7 +22,7 @@ void main ()
 
     vec3 lookup = normalize(worldPos.xyz / worldPos.w);
     lookup.y *= -1;
-    lookup.z *= -1;
+    //lookup.z *= -1;
 
     vec4 colour = texture(envMap, lookup);
 

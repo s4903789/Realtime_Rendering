@@ -8,7 +8,7 @@ TARGET = environment
 
 # Input
 INCLUDEPATH += ./include
-HEADERS += src/envscene.h \
+HEADERS += include/envscene.h \
            include/camera.h \
            include/fixedcamera.h \
            include/scene.h \

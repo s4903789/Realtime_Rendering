@@ -44,6 +44,8 @@ public:
 
     void setCubeMatrix(glm::mat4 _cubeMatrix) {m_cubeMatrix = _cubeMatrix;}
 
+    void setAimedEye(glm::dvec3 _aimedEye) {m_aimedEye = _aimedEye;}
+
 protected:
     /// Check for generic OpenGL errors
     static GLvoid CheckError( const char* label ) noexcept;
@@ -65,6 +67,7 @@ protected:
 
     /// Keep a view and projection matrix here to render our scene
     glm::mat4 m_V, m_P, m_cubeMatrix;
+    glm::dvec3 m_aimedEye;
 
     /// Function to convert HSV to RGB
     static void hsv2rgb(glm::vec3& rgb, const glm::vec3& hsv);

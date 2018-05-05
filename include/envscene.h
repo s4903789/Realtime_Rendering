@@ -20,10 +20,12 @@ public:
     /// Called when the scene is to be initialised
     void initGL() noexcept;
 
+    float m_displacementFactor;
+    float m_noiseFactor;
+
 private:
     /// The ID of our environment texture
     GLuint m_envTex,
-           m_glossMapTex,
            m_bananaTex,
            m_bananaNormal,
            m_ramp,

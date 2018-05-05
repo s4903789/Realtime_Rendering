@@ -23,6 +23,10 @@ void EnvScene::initGL() noexcept
     glEnable(GL_DEPTH_TEST);
     // enable multisampling for smoother drawing
     glEnable(GL_MULTISAMPLE);
+    //initialising the default displacement factor
+    m_displacementFactor = 1.f;
+    //initialising the default noise factor
+    m_noiseFactor = 0.f;
 
     //Set up parameters for rendering shadows
     m_lightPosition = glm::vec3(2.f, 2.f, -2.f);
@@ -35,12 +39,12 @@ void EnvScene::initGL() noexcept
     //Load in shaders
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
 
-    shader->loadShader("EnvironmentProgram",
-                       "shaders/env_vert.glsl",
-                       "shaders/env_frag.glsl");
-    shader->use("EnvironmentProgram");
-    initTexture(2, m_glossMapTex, "textures/banana_hi_poly.png");
-    shader->setUniform("glossMap", 2);
+    shader->loadShader("BananaProgram",
+                       "shaders/banana_vert.glsl",
+                       "shaders/banana_frag.glsl");
+    shader->use("BananaProgram");
+    initTexture(2, m_bananaTex, "textures/banana_hi_poly.png");
+    shader->setUniform("bananaTex", 2);
     initTexture(3, m_bananaNormal, "images/NormalMap(1).jpg");
     shader->setUniform("normal",3);
     initTexture(5, m_noiseMap, "textures/noise_map.png");
@@ -151,11 +155,14 @@ void EnvScene::loadToLightPOVShader()
 void EnvScene::loadToBananaShader()
 {
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-    (*shader)["EnvironmentProgram"]->use();
-    GLint pid = shader->getProgramID("EnvironmentProgram");
+    (*shader)["BananaProgram"]->use();
+    GLint pid = shader->getProgramID("BananaProgram");
 
     //std::cout<<"shader got\n";
-
+    glUniform1f(glGetUniformLocation(pid, "noiseFactor"),
+                                     m_noiseFactor);
+    glUniform1f(glGetUniformLocation(pid, "displacementFactor"),
+                                     m_displacementFactor);
     // Our MVP matrices
     glm::mat4 MVP, MV;
    // M = glm::scale(M, glm::vec3(5.0f, 5.0f, 5.0f)); //can change this to 2.5 l8r
@@ -171,6 +178,9 @@ void EnvScene::loadToBananaShader()
     MVP = m_P * MV;
    // std::cout<<"matrix multiplication \n";
     // Set this MVP on the GPU
+    glUniform3fv(glGetUniformLocation(pid, "aimedEye"),
+                                      1,
+                                      glm::value_ptr(glm::vec3(m_aimedEye)));
     glUniformMatrix4fv(glGetUniformLocation(pid, "MVP"), //location of uniform
                        1, // how many matrices to transfer
                        false, // whether to transpose matrix
@@ -431,7 +441,7 @@ void EnvScene::initEnvironment() {
 
     // Set our cube map texture to on the shader so we can use it
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-    shader->use("EnvironmentProgram");
+    shader->use("BananaProgram");
     shader->setUniform("envMap", 0);
     shader->use("CubeProgram");
     shader->setUniform("envMap", 0);

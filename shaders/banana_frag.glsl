@@ -10,22 +10,25 @@ layout (location=0) out vec4 FragColour;
 
 // A texture unit for storing the 3D texture
 uniform samplerCube envMap;
-uniform sampler2D glossMap;
+uniform sampler2D bananaTex;
 uniform sampler2D banana;
 uniform sampler2D normal;
 uniform sampler2D ramp;
 uniform sampler2D tex;
+uniform vec3 aimedEye;
 
 //Setting the light colour and positions for all the lights corresponding to the env cube
 uniform vec3 lightPositions[18];
 uniform vec3 lightColours[18];
 uniform mat4 MV;
+
+uniform float noiseFactor;
 // Set the maximum environment level of detail (cannot be queried from GLSL apparently)
 // The mipmap level is determined by log_2(resolution), so if the texture was 4x4,
 // there would be 8 mipmap levels (128x128,64x64,32x32,16x16,8x8,4x4,2x2,1x1).
 // The LOD parameter can be anything inbetween 0.0 and 8.0 for the purposes of
 // trilinear interpolation.
-uniform int envMaxLOD = 8;
+uniform int envMaxLOD = 10;
 
 // The inverse View matrix
 uniform mat4 invV;
@@ -216,12 +219,13 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     /***********************************************************************/
     //setting up roughness for when it encounters speckles, it should be rougher
     //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
-        vec4 roughColourCheck = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
-        float m = 0.2;
-        if(roughColourCheck.r < 0.57)
+        vec4 roughColourCheck = texture(bananaTex, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+       float m = 0.5;
+       //float m = 0.01;
+       if(roughColourCheck.r < 0.57)
         {
             m = 1.0;
-        }
+        } 
 
     float mSquared = m*m;
     float NdotH = dot(n, h); //dot product of surface and light position
@@ -242,16 +246,18 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     float G = min(1.0, min(g1, g2));   
 
     // Schlick approximation
-    float F0 = 0.1; // Fresnel reflectance at normal incidence
+    float F0 = 0.05; // Fresnel reflectance at normal incidence
     float F_r = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 0.1; // Fresnel reflectance at normal incidence
+    F0 = 0.05; // Fresnel reflectance at normal incidence
     float F_g = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 0.1; // Fresnel reflectance at normal incidence
+    F0 = 0.05; // Fresnel reflectance at normal incidence
     float F_b = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
     
     // Compute the light from the ambient, diffuse and specular components
     
     vec3 spec = G * vec3(F_r, F_g, F_b) * D / NdotV;
+
+    vec3 specColour = textureLod(envMap, lookup, m*envMaxLOD).rgb;
     ///////////////////////////////////////////////////
     //float noise = sumOctave(FragmentTexCoord, 12, 0.5f, 10.0f, 0.0f, 1.0f);
     float noise = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
@@ -260,7 +266,7 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     spec = max(spec, 0.f);
     vec3 LightIntensity = (
             lightCol * max( dot(s, n), 0.0 ) +
-            lightCol * spec);
+            specColour * spec);
     
     float dist = length(lightPos - FragmentPosition.xyz);
     
@@ -278,6 +284,7 @@ void main () {
 
     // Calculate the eye vector
     vec3 v = normalize(vec3(-FragmentPosition));
+    //vec3 v = -normalize(aimedEye);
 
     vec2 minusZ = vec2(FragmentTexCoord.x, -FragmentTexCoord.y);
     vec3 normalValue = normalize(texture(normal, minusZ).xyz);
@@ -285,36 +292,16 @@ void main () {
     float angle = acos(cosAngle);
     n = rotate(v,n,angle);
     //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
-    vec4 roughColourCheck = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+    vec4 roughColourCheck = texture(bananaTex, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
     float m = 0.2;
     if(roughColourCheck.r < 0.57)
     {
         m = 1.0;
     }
     
-    /*******************************************************************************/
     vec3 p = FragmentPosition.xyz / FragmentPosition.w;
-      // Calculate the light vector
 
-  
-
-    /************************************************************************/
-
-    // Here you will need to use the environment map and with a lookup vector
-    // which you've determined to get a colour to display.
-    
-    //vec4 mapColour = texture(envMap, lookup);
-    // Next you will need to use the LOD value to "smudge" the incoming light
-    // from the environment.
-
-    //vec4 lodMapColour = textureLod(envMap, lookup, blurValue);
-    //lodMapColour = lodMapColour * texture(banana, FragmentTexCoord);
-    //lodMapColour = lodMapColour + texture(banana, FragmentTexCoord);
-    // Next you will need to used a gloss map to determine the level of "smudge"
-
-    //FragColour = vec4(lodMapColour.xyz*LightIntensity,1.0); //colour;
-
-    float blurValue = texture(glossMap, FragmentTexCoord).x * 8;
+    float blurValue = texture(bananaTex, FragmentTexCoord).x * 8;
     vec4 bananaDiffuse = texture(banana, FragmentTexCoord);
     float speckleNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 20.0f, 0.0f, 1.0f); //iterations, persistence, frequency, low, high
     float maskNoise1 = sumOctave(FragmentTexCoord, 12, 0.5f, 30.0f, 0.0f, 1.0f);
@@ -339,7 +326,7 @@ void main () {
       patchNoise = 1.f;
     }
 
-    float bruiseNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 6.0f, 0.0f, 1.0f);
+    float bruiseNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 6.0f, 0.0f, 1.f);
     bruiseNoise /= maskNoise6;
    // bruiseNoise*= 3;
     if (bruiseNoise > 1.f)
@@ -352,20 +339,20 @@ void main () {
     {
       speckleNoise = 1.0f;
     }
-    FragColour = texture(glossMap, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
+    FragColour = texture(bananaTex, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
   
     //Increase contrast of the noise
     bruiseNoise = contrast(bruiseNoise);
 
     //This sets bruiseNoiseColour to be black with the inverse of brown spots
     vec4 bruiseNoiseColour = (bruiseNoise * invert(vec4(0.2, 0.176, 0.075, 1.f)));
-
+    bruiseNoiseColour*= noiseFactor*1.3;
     //This then inverts it to be white with brown spots so that it can be multiplied with the diffuse
     bruiseNoiseColour = invert(bruiseNoiseColour);
     
     vec4 patchColour = vec4(0.176, 0.086, 0.039, 1.f);
-    vec4 blend = patchColour * patchNoise + FragColour * (1.0f - patchNoise);
-    blend = speckleColour * speckleNoise + blend * (1.0f - speckleNoise);
+    vec4 blend = noiseFactor * patchColour * patchNoise + FragColour * (1.0f - noiseFactor *patchNoise);
+    blend = noiseFactor * speckleColour * speckleNoise + blend * (1.0f - noiseFactor *speckleNoise);
 
   //////////////////////LIGHTS/////////////////////////////////////////////
   vec3 totalLightIntensity;
@@ -380,6 +367,6 @@ void main () {
     FragColour = blend * vec4(bruiseNoiseColour);
     FragColour*= vec4(totalLightIntensity, 1.0);
 
+    }
     
-}
 

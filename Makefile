@@ -65,7 +65,7 @@ OBJECTS       = obj/main.o \
 		obj/trackballcamera.o
 DIST          = $OTHER_FILES \
 		.qmake.stash \
-		environment.pro src/envscene.h \
+		environment.pro include/envscene.h \
 		include/camera.h \
 		include/fixedcamera.h \
 		include/scene.h \
@@ -476,7 +476,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /opt/Qt5.9.0/5.9/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents src/envscene.h include/camera.h include/fixedcamera.h include/scene.h include/trackballcamera.h $(DISTDIR)/
+	$(COPY_FILE) --parents include/envscene.h include/camera.h include/fixedcamera.h include/scene.h include/trackballcamera.h $(DISTDIR)/
 	$(COPY_FILE) --parents src/main.cpp src/envscene.cpp src/camera.cpp src/fixedcamera.cpp src/scene.cpp src/trackballcamera.cpp $(DISTDIR)/
 
 
@@ -525,7 +525,7 @@ compiler_clean: compiler_moc_predefs_clean
 
 ####### Compile
 
-obj/main.o: src/main.cpp src/envscene.h \
+obj/main.o: src/main.cpp include/envscene.h \
 		/home/s4903789/NGL/include/ngl/Obj.h \
 		/home/s4903789/NGL/include/ngl/Types.h \
 		/home/s4903789/NGL/include/ngl/glew.h \
@@ -665,7 +665,7 @@ obj/main.o: src/main.cpp src/envscene.h \
 		include/trackballcamera.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o obj/main.o src/main.cpp
 
-obj/envscene.o: src/envscene.cpp src/envscene.h \
+obj/envscene.o: src/envscene.cpp include/envscene.h \
 		/home/s4903789/NGL/include/ngl/Obj.h \
 		/home/s4903789/NGL/include/ngl/Types.h \
 		/home/s4903789/NGL/include/ngl/glew.h \

@@ -8,7 +8,6 @@ smooth in vec2 FragmentTexCoord;
 /// @brief our output fragment colour
 layout (location=0) out vec4 FragColour;
 
-// A texture unit for storing the 3D texture
 uniform samplerCube envMap;
 uniform sampler2D bananaTex;
 uniform sampler2D banana;
@@ -22,17 +21,15 @@ uniform vec3 lightPositions[18];
 uniform vec3 lightColours[18];
 uniform mat4 MV;
 
+//setting the factor to multiply the noise by, depending on how old the banana should be
 uniform float noiseFactor;
-// Set the maximum environment level of detail (cannot be queried from GLSL apparently)
-// The mipmap level is determined by log_2(resolution), so if the texture was 4x4,
-// there would be 8 mipmap levels (128x128,64x64,32x32,16x16,8x8,4x4,2x2,1x1).
-// The LOD parameter can be anything inbetween 0.0 and 8.0 for the purposes of
-// trilinear interpolation.
+// Set the maximum environment level of detail
 uniform int envMaxLOD = 10;
 
 // The inverse View matrix
 uniform mat4 invV;
 
+//The rotation matrix used in calculations for the normal map
 mat4 rotationMatrix(vec3 axis, float angle) {
     axis = normalize(axis);
     float s = sin(angle);
@@ -49,7 +46,7 @@ vec3 rotate(vec3 v, vec3 axis, float angle) {
         mat4 m = rotationMatrix(axis, angle);
         return (m * vec4(v, 1.0)).xyz;
 }
-/*****************************************************/
+
 //Lights, materials and stuff from Realtime_Rendering/myshader_frag.glsl
 // Structure for holding light parameters
 struct LightInfo {
@@ -215,8 +212,7 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     vec3 lookup = reflect(v, n);
 
     // Distribution function
-    
-    /***********************************************************************/
+
     //setting up roughness for when it encounters speckles, it should be rougher
     //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
         vec4 roughColourCheck = texture(bananaTex, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
@@ -258,8 +254,7 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     vec3 spec = G * vec3(F_r, F_g, F_b) * D / NdotV;
 
     vec3 specColour = textureLod(envMap, lookup, m*envMaxLOD).rgb;
-    ///////////////////////////////////////////////////
-    //float noise = sumOctave(FragmentTexCoord, 12, 0.5f, 10.0f, 0.0f, 1.0f);
+
     float noise = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
     //float spec = G * F * D / NdotV;
     spec *= noise * noise;
@@ -328,7 +323,7 @@ void main () {
 
     float bruiseNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 6.0f, 0.0f, 1.f);
     bruiseNoise /= maskNoise6;
-   // bruiseNoise*= 3;
+ 
     if (bruiseNoise > 1.f)
     {
       bruiseNoise = 1.f;
@@ -354,7 +349,6 @@ void main () {
     vec4 blend = noiseFactor * patchColour * patchNoise + FragColour * (1.0f - noiseFactor *patchNoise);
     blend = noiseFactor * speckleColour * speckleNoise + blend * (1.0f - noiseFactor *speckleNoise);
 
-  //////////////////////LIGHTS/////////////////////////////////////////////
   vec3 totalLightIntensity;
   for(int i=0; i<16; i++)
   {

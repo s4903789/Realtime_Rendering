@@ -188,7 +188,7 @@ void EnvScene::loadToBananaShader()
                        false, // whether to transpose matrix
                        glm::value_ptr(glm::inverse(m_V))); // a raw pointer to the data
 
-    for(int i = 0; i < 16; i++)
+    for(int i = 0; i < 18; i++)
     {
         glUniform3fv(glGetUniformLocation(pid, ("lightPositions[" + std::to_string(i) + "]").c_str() ),
                      3,
@@ -226,7 +226,7 @@ void EnvScene::loadToBowlShader()
                        true, // whether to transpose matrix
                        glm::value_ptr(N)); // a raw pointer to the data
 
-    for(int i = 0; i < 16; i++)
+    for(int i = 0; i < 18; i++)
     {
         glUniform3fv(glGetUniformLocation(pid, ("lightPositions[" + std::to_string(i) + "]").c_str() ),
                      3,

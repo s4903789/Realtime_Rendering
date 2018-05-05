@@ -10,8 +10,8 @@ smooth in vec2 FragmentTexCoord;
 // A texture sampler to store the normal information
 uniform sampler2D woodNormal;
 
-uniform vec3 lightPositions[16];
-uniform vec3 lightColours[16];
+uniform vec3 lightPositions[18];
+uniform vec3 lightColours[18];
 uniform mat4 MV;
 uniform mat4 MVP;
 uniform vec3 LightPos;
@@ -288,7 +288,7 @@ void main()
     FragColour = vec4(mix(darkWood, lightWood, mod(l*8, 1)),1.f);
 
     vec3 totalLightIntensity;
-    for(int i=0; i<16; i++)
+    for(int i=0; i<18; i++)
     {
       totalLightIntensity += calculateLightIntensity(lightPositions[i]*50, lightColours[i], p, n, v, FragmentTexCoord);
     }

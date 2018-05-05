@@ -50,7 +50,7 @@ private:
     /********************************/
 
     /***********LIGHTS FOR ENV MAP************/
-    std::array<glm::vec3, 16> m_lightPositions = {glm::vec3(2.271f, 0.955f, -4.715f),
+    std::array<glm::vec3, 18> m_lightPositions = {glm::vec3(2.271f, 0.955f, -4.715f),
                                                 glm::vec3(2.849f, 0.955f, -2.152f),
                                                 glm::vec3(2.849f, 0.955f, -1.087f),
                                                 glm::vec3(3.722f, -0.726f, -2.983f),
@@ -65,9 +65,11 @@ private:
                                                 glm::vec3(2.442f, -1.176f, 2.554f),
                                                 glm::vec3(0.296f, 2.024f, 0.119f),
                                                 glm::vec3(-1.777f, 0.678f, -0.149f),
-                                                glm::vec3(-0.743f, 1.530f, -0.149f)};
+                                                glm::vec3(-0.743f, 1.530f, -0.149f),
+                                                glm::vec3(0.114f, -1.595f, -0.001f),
+                                                glm::vec3(-2.179, -0.327, -3.417)};
     
-    std::array<glm::vec3, 16> m_lightColours = {glm::vec3(0.959f, 0.946f, 0.680f), //0
+    std::array<glm::vec3, 18> m_lightColours = {glm::vec3(0.959f, 0.946f, 0.680f), //0
                                               glm::vec3(0.454f, 0.442f, 0.374f), //1
                                               glm::vec3(0.982f, 0.982f, 0.965f), //2
                                               glm::vec3(0.412f, 0.430f, 0.468f), //3
@@ -82,7 +84,9 @@ private:
                                               glm::vec3(0.680f, 0.457f, 0.314f), //12
                                               glm::vec3(0.997f, 0.979f, 0.835f), //13
                                               glm::vec3(0.216f, 0.216f, 0.175f), //14
-                                              glm::vec3(0.109f, 0.073f, 0.046f)}; //15
+                                              glm::vec3(0.109f, 0.073f, 0.046f),
+                                              glm::vec3(0.307f, 0.169f, 0.057f),
+                                              glm::vec3(0.316f, 0.215f, 0.083f)}; //15
 
 
 

@@ -17,8 +17,8 @@ uniform sampler2D ramp;
 uniform sampler2D tex;
 
 //Setting the light colour and positions for all the lights corresponding to the env cube
-uniform vec3 lightPositions[16];
-uniform vec3 lightColours[16];
+uniform vec3 lightPositions[18];
+uniform vec3 lightColours[18];
 uniform mat4 MV;
 // Set the maximum environment level of detail (cannot be queried from GLSL apparently)
 // The mipmap level is determined by log_2(resolution), so if the texture was 4x4,

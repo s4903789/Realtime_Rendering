@@ -218,7 +218,7 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
         vec4 roughColourCheck = texture(bananaTex, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
        float m = 0.5;
        //float m = 0.01;
-       if(roughColourCheck.r < 0.57)
+       if(roughColourCheck.g < 0.57)
         {
             m = 1.0;
         } 

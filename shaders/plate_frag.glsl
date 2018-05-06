@@ -253,12 +253,6 @@ void main()
     // Calculate the normal (this is the expensive bit in Phong)
     vec3 n = normalize( FragmentNormal );
 
-    // ***********************************************************
-    // What you'll need to do here is rotate n based on the normal
-    // provided in the normal map. After this, the lighting
-    // calculations will work below.
-    // ***********************************************************
-
     //gets the RGB value of the current value
     vec3 normalMapColour = texture(woodNormal, FragmentTexCoord*6).rgb;
     //scaling the vector
@@ -295,10 +289,6 @@ void main()
     totalLightIntensity*=5000;
 
     FragColour *= vec4(totalLightIntensity, 1.0);
-    //FragColour = vec4(lightColours[0], 1.0);
-    //FragColour *= vec4(LightIntensity, 1.0);
-   //FragColour = vec4(n, 1.f);
 
-    
 }
 

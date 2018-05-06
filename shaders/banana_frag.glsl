@@ -109,12 +109,7 @@ float snoise(vec2 v) {
 
 // Other corners
   vec2 i1;
-  //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0
-  //i1.y = 1.0 - i1.x;
   i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  // x0 = x0 - 0.0 + 0.0 * C.xx ;
-  // x1 = x0 - i1 + 1.0 * C.xx ;
-  // x2 = x0 - 1.0 + 2.0 * C.xx ;
   vec4 x12 = x0.xyxy + C.xxzz;
   x12.xy -= i1;
 
@@ -174,9 +169,6 @@ float sumOctave(in vec2 pos,
     return noise;
 }
 
-
-
-/*******************************************************/
 vec3 invert(vec3 _value)
 {
   _value *= -1;
@@ -214,7 +206,6 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     // Distribution function
 
     //setting up roughness for when it encounters speckles, it should be rougher
-    //using the roughness calculations worked out in Realtime_Rendering/myshader_frag.glsl
         vec4 roughColourCheck = texture(bananaTex, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
        float m = 0.5;
        //float m = 0.01;
@@ -330,10 +321,6 @@ void main () {
     }
     bruiseNoise = (bruiseNoise * -1) + 1;
 
-    if (speckleNoise > 1.f)
-    {
-      speckleNoise = 1.0f;
-    }
     FragColour = texture(bananaTex, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
   
     //Increase contrast of the noise

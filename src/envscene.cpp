@@ -47,7 +47,7 @@ void EnvScene::initGL() noexcept
     shader->setUniform("bananaTex", 2);
     initTexture(3, m_bananaNormal, "images/NormalMap(1).jpg");
     shader->setUniform("normal",3);
-    initTexture(5, m_noiseMap, "textures/noise_map.png");
+    initTexture(5, m_noiseMap, "textures/banana_noise.jpg");
     shader->setUniform("noiseMap", 5);
     initTexture(4, m_ramp, "textures/ramp.tif");
     shader->setUniform("ramp", 4);

@@ -1,4 +1,4 @@
-#include "envscene.h"
+#include "banana_scene.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <ngl/Obj.h>
@@ -10,9 +10,9 @@
 #include <ngl/NGLStream.h>
 
 
-EnvScene::EnvScene() : Scene() {}
+BananaScene::BananaScene() : Scene() {}
 
-void EnvScene::initGL() noexcept
+void BananaScene::initGL() noexcept
 {
     // Fire up the NGL machinary (not doing this will make it crash)
     ngl::NGLInit::instance();
@@ -44,7 +44,7 @@ void EnvScene::initGL() noexcept
     shader->use("BananaProgram");
     initTexture(2, m_bananaTex, "textures/banana_hi_poly.png");
     shader->setUniform("bananaTex", 2);
-    initTexture(3, m_bananaNormal, "images/NormalMap(1).jpg");
+    initTexture(3, m_bananaNormal, "textures/NormalMap(1).jpg");
     shader->setUniform("normal",3);
     initTexture(5, m_noiseMap, "textures/banana_noise.jpg");
     shader->setUniform("noiseMap", 5);
@@ -79,7 +79,7 @@ void EnvScene::initGL() noexcept
     m_bowlMesh->createVAO();
 }
 
-void EnvScene::loadToBananaShader()
+void BananaScene::loadToBananaShader()
 {
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
     (*shader)["BananaProgram"]->use();
@@ -125,15 +125,15 @@ void EnvScene::loadToBananaShader()
     for(int i = 0; i < 18; i++)
     {
         glUniform3fv(glGetUniformLocation(pid, ("lightPositions[" + std::to_string(i) + "]").c_str() ),
-                     3,
+                     1,
                      glm::value_ptr(m_lightPositions[i]));
         glUniform3fv(glGetUniformLocation(pid, ("lightColours[" + std::to_string(i) + "]").c_str() ),
-                     3,
+                     1,
                      glm::value_ptr(m_lightColours[i]));
     } 
 }
 
-void EnvScene::loadToBowlShader()
+void BananaScene::loadToBowlShader()
 {
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
     (*shader)["BowlProgram"]->use();
@@ -163,15 +163,15 @@ void EnvScene::loadToBowlShader()
     for(int i = 0; i < 18; i++)
     {
         glUniform3fv(glGetUniformLocation(pid, ("lightPositions[" + std::to_string(i) + "]").c_str() ),
-                     3,
+                     1,
                      glm::value_ptr(m_lightPositions[i]));
         glUniform3fv(glGetUniformLocation(pid, ("lightColours[" + std::to_string(i) + "]").c_str() ),
-                     3,
+                     1,
                      glm::value_ptr(m_lightColours[i]));
     } 
 }
 
-void EnvScene::loadToEnvironment()
+void BananaScene::loadToEnvironment()
 {
   ngl::ShaderLib *shader=ngl::ShaderLib::instance();
   (*shader)["CubeProgram"]->use();
@@ -193,7 +193,7 @@ void EnvScene::loadToEnvironment()
                      glm::value_ptr(MV));
 }
 
-void EnvScene::paintGL() noexcept
+void BananaScene::paintGL() noexcept
 {
     glBindFramebuffer(GL_FRAMEBUFFER,0);
     // set the viewport to the screen dimensions
@@ -222,7 +222,7 @@ void EnvScene::paintGL() noexcept
     
 }
 
-void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *filename) {
+void BananaScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *filename) {
     // Set our active texture unit
     glActiveTexture(GL_TEXTURE0 + texUnit);
 
@@ -258,7 +258,7 @@ void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *fil
  * @brief Scene::initEnvironment in texture unit 0
  */
 
-void EnvScene::initEnvironment() {
+void BananaScene::initEnvironment() {
     // Enable seamless cube mapping
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
@@ -339,7 +339,7 @@ void EnvScene::initEnvironment() {
  * This function should only be called when we have the environment texture bound already
  * copy image data into 'target' side of cube map
  */
-void EnvScene::initEnvironmentSide(GLenum target, const char *filename) {
+void BananaScene::initEnvironmentSide(GLenum target, const char *filename) {
     // Load up the image using NGL routine
     ngl::Image img(filename);
 

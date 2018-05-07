@@ -4,16 +4,16 @@
 
 include(/home/s4903789/workshops/rendering_examples/common/common.pri)
 #include(common.pri)
-TARGET = environment
+TARGET = banana
 
 # Input
 INCLUDEPATH += ./include
-HEADERS += include/envscene.h \
+HEADERS += include/banana_scene.h \
            include/camera.h \
            include/fixedcamera.h \
            include/scene.h \
            include/trackballcamera.h
-SOURCES += src/main.cpp src/envscene.cpp \
+SOURCES += src/main.cpp src/banana_scene.cpp \
            src/camera.cpp \
            src/fixedcamera.cpp \
            src/scene.cpp \

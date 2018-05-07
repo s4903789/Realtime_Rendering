@@ -9,12 +9,12 @@
 TrackballCamera::TrackballCamera() :
     Camera(),
     m_state(TRACKBALL_PASSIVE),
-    m_yaw(0.0),
-    m_pitch(0.0),
+    m_yaw(-1.5),
+    m_pitch(0.3),
     m_zoom(1.0),
     m_sensitivity(0.01),
-    m_lastYaw(0.0),
-    m_lastPitch(0.0),
+    m_lastYaw(-1.5),
+    m_lastPitch(0.3),
     m_dirty(true)
 {
     // Set up default camera targets and eye positions

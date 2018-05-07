@@ -1,5 +1,5 @@
 // Must include our scene first because of GL dependency order
-#include "envscene.h"
+#include "banana_scene.h"
 
 // This will probably already be included by a scene file
 #include "glinclude.h"
@@ -10,7 +10,7 @@
 #include <GLFW/glfw3.h>
 
 /// A scene object
-EnvScene g_scene;
+BananaScene g_scene;
 
 /// A camera object
 TrackballCamera g_camera;
@@ -72,10 +72,34 @@ void key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int
     {
         
         g_scene.m_displacementFactor += 0.1f;
+        if(g_scene.m_displacementFactor > 2.5f)
+        {
+            g_scene.m_displacementFactor = 2.5f;
+        }
     }
     else if(key == GLFW_KEY_E && action == GLFW_PRESS) 
     {
         g_scene.m_noiseFactor +=0.1f;
+        if(g_scene.m_noiseFactor > 1.5f)
+        {
+            g_scene.m_noiseFactor = 1.5f;
+        }
+    }
+    else if(key == GLFW_KEY_S && action == GLFW_PRESS)
+    {
+        g_scene.m_displacementFactor -=0.1f;
+        if(g_scene.m_displacementFactor < 1.f)
+        {
+            g_scene.m_displacementFactor = 1.f;
+        }
+    }
+    else if(key == GLFW_KEY_D && action == GLFW_PRESS)
+    {
+        g_scene.m_noiseFactor -= 0.1f;
+        if(g_scene.m_noiseFactor < 0.f)
+        {
+            g_scene.m_noiseFactor = 0.f;
+        }
     }
     else
     {
@@ -116,7 +140,7 @@ int main() {
     int width = 1024; int height = 768;
     GLFWwindow* window = glfwCreateWindow(width, // width
                                           height, // height
-                                          "My Title", // title
+                                          "Banana", // title
                                           nullptr, // monitor for full screen
                                           nullptr); // return value on failure
 

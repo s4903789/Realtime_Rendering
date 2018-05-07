@@ -1,5 +1,5 @@
-#ifndef ENVSCENE_H
-#define ENVSCENE_H
+#ifndef BANANA_SCENE_H
+#define BANANA_SCENE_H
 #include <memory>
 
 #include <ngl/Obj.h>
@@ -9,10 +9,10 @@
 #include <ngl/Transformation.h>
 
 
-class EnvScene : public Scene
+class BananaScene : public Scene
 {
 public:
-    EnvScene();
+    BananaScene();
 
     /// Called when the scene needs to be painted
     void paintGL() noexcept;

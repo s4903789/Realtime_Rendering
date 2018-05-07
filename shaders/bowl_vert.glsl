@@ -13,7 +13,6 @@ uniform mat4 MV;
 uniform mat4 MVP;
 uniform vec3 LightPos;
 uniform mat3 N; 
-//uniform mat3 VertexNormal;
 smooth out vec4 FragmentPosition;
 out vec3 FragmentNormal;
 out vec3 P;
@@ -30,7 +29,7 @@ void main()
 	L = vec3(MVP*(vec4(LightPos,1)-vec4(VertexPosition, 1.f))).xyz;
     gl_Position = MVP * vec4(VertexPosition, 1.f);
 
-
+    //Creating displacement according to a noise map
     vec3 noiseTex = texture(perturbMap, vec2(TexCoord.x, -TexCoord.y)).rgb;
     vec3 PerturbedVertexPosition = VertexPosition + (VertexNormal * noiseTex * -0.0175f);
     FragmentPosition = MV * vec4(PerturbedVertexPosition, 1.0);

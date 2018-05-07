@@ -26,6 +26,7 @@ public:
 private:
     /// The ID of our environment texture
     GLuint m_envTex,
+           m_envTexBlurred,
            m_bananaTex,
            m_bananaNormal,
            m_ramp,

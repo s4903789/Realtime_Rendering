@@ -32,7 +32,6 @@ void EnvScene::initGL() noexcept
     m_lightPosition = glm::vec3(2.f, 2.f, -2.f);
     m_lightPOVMatrix = glm::lookAt(m_lightPosition, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
     m_lightProj = glm::perspective(30.f, float(m_width)/float(m_height), 0.01f, 1000.f);
-    initFBO();
     glViewport(0, 0, m_width, m_height);
 
 
@@ -53,10 +52,10 @@ void EnvScene::initGL() noexcept
     shader->setUniform("ramp", 4);
     
 
-    shader->loadShader("PlateProgram",
-                       "shaders/plate_vert.glsl",
-                       "shaders/plate_frag.glsl");
-    shader->use("PlateProgram");
+    shader->loadShader("BowlProgram",
+                       "shaders/bowl_vert.glsl",
+                       "shaders/bowl_frag.glsl");
+    shader->use("BowlProgram");
     initTexture(6, m_woodNormal, "textures/walnut.jpg");
     shader->setUniform("woodNormal",6);
     initTexture(7, m_woodPerturb, "textures/wood_perturb.jpg");
@@ -137,8 +136,8 @@ void EnvScene::loadToBananaShader()
 void EnvScene::loadToBowlShader()
 {
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-    (*shader)["PlateProgram"]->use();
-    GLint pid = shader->getProgramID("PlateProgram");
+    (*shader)["BowlProgram"]->use();
+    GLint pid = shader->getProgramID("BowlProgram");
 
     m_model = glm::mat4();
     glm::mat4 MVP, MV;
@@ -259,38 +258,6 @@ void EnvScene::initTexture(const GLuint& texUnit, GLuint &texId, const char *fil
  * @brief Scene::initEnvironment in texture unit 0
  */
 
-void EnvScene::initFBO()
-{
-  // Try to use a texture depth component
-  glGenTextures(1, &m_fboTextureId);
-  glBindTexture(GL_TEXTURE_2D, m_fboTextureId);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-
-  glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-  glBindTexture(GL_TEXTURE_2D, 0);
-
-  // create our FBO
-  glGenFramebuffers(1, &m_fboId);
-  glBindFramebuffer(GL_FRAMEBUFFER, m_fboId);
-  // disable the colour and read buffers as we only want depth
-  glDrawBuffer(GL_NONE);
-  glReadBuffer(GL_NONE);
-
-  // attach our texture to the FBO
-
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D, m_fboTextureId, 0);
-
-  // switch back to window-system-provided framebuffer
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
 void EnvScene::initEnvironment() {
     // Enable seamless cube mapping
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
@@ -299,18 +266,21 @@ void EnvScene::initEnvironment() {
     glActiveTexture (GL_TEXTURE0);
 
     // Generate storage and a reference for our environment map texture
-    glGenTextures (1, &m_envTex);
+    glGenTextures (1, &m_envTexBlurred);
 
     // Bind this texture to the active texture unit
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_envTex);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_envTexBlurred);
 
     // Now load up the sides of the cube
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "textures/nz.jpg");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "textures/pz.jpg");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "textures/ny.jpg");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "textures/py.jpg");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "textures/nx.jpg");
-    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_X, "textures/px.jpg");
+    /***HDRI acquired from https://i.pinimg.com/originals/c8/da/6e/c8da6e88f6da56e3affe74b3d645e675.jpg ***/
+    //These textures have been blurred to achieve a depth of field effect
+
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "textures/blur/nz.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "textures/blur/pz.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "textures/blur/ny.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "textures/blur/py.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "textures/blur/nx.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_X, "textures/blur/px.jpg");
 
     // Generate mipmap levels
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
@@ -327,10 +297,38 @@ void EnvScene::initEnvironment() {
 
     // Set our cube map texture to on the shader so we can use it
     ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-    shader->use("BananaProgram");
-    shader->setUniform("envMap", 0);
     shader->use("CubeProgram");
     shader->setUniform("envMap", 0);
+    
+    // Placing our environment map texture in texture unit 1
+    glActiveTexture (GL_TEXTURE1);
+
+    // Generate storage and a reference for our environment map texture
+    glGenTextures (1, &m_envTex);
+
+    // Bind this texture to the active texture unit
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_envTex);
+    //These are the sharp cube textures used to generate the spec on the banana
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "textures/nz.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, "textures/pz.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, "textures/ny.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, "textures/py.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, "textures/nx.jpg");
+    initEnvironmentSide(GL_TEXTURE_CUBE_MAP_POSITIVE_X, "textures/px.jpg");
+
+    // Generate mipmap levels
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+    // Set the texture parameters for the cube map
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropy);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+    shader->use("BananaProgram");
+    shader->setUniform("envMap", 1);
 }
 
 /**

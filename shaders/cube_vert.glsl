@@ -30,8 +30,6 @@ void main() {
     // Compute the unprojected vertex position
     FragmentPosition = vec3(MVP * vec4(VertexPosition, 1.0)).xyz;
 
-    //worldPos = vec4(FragmentPosition, 1);
-
     // Copy across the texture coordinates
     FragmentTexCoord = TexCoord;
 

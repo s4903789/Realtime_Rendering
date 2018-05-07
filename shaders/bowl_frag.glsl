@@ -5,6 +5,9 @@ layout (location=0) out vec4 FragColour;
 
 smooth in vec4 FragmentPosition;
 smooth in vec3 FragmentNormal;
+in vec3 P;
+in vec3 V;
+in vec3 L;
 smooth in vec2 FragmentTexCoord;
 
 // A texture sampler to store the normal information
@@ -16,10 +19,6 @@ uniform mat4 MV;
 uniform mat4 MVP;
 uniform vec3 LightPos;
 uniform mat3 N; 
-//uniform mat3 VertexNormal;
-in vec3 P;
-in vec3 V;
-in vec3 L;
 
 // Structure for holding light parameters
 struct LightInfo {
@@ -54,11 +53,8 @@ uniform MaterialInfo Material = MaterialInfo(
             20.0                  // Shininess
             );
 
+/****Noise functions appropriated from the noise demo in the rendering_examples directory****/
 
-
-//wood stuff
-
-/*****SETTING UP THE NOISE FOR THE SPEC MAP SMUDGES****/
 /******************************************************
   * The following simplex noise functions have been taken from WebGL-noise
   * https://github.com/stegu/webgl-noise/blob/master/src/noise2D.glsl
@@ -86,12 +82,7 @@ float snoise(vec2 v) {
 
 // Other corners
   vec2 i1;
-  //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0
-  //i1.y = 1.0 - i1.x;
   i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  // x0 = x0 - 0.0 + 0.0 * C.xx ;
-  // x1 = x0 - i1 + 1.0 * C.xx ;
-  // x2 = x0 - 1.0 + 2.0 * C.xx ;
   vec4 x12 = x0.xyxy + C.xxzz;
   x12.xy -= i1;
 
@@ -151,23 +142,20 @@ float sumOctave(in vec2 pos,
     return noise;
 }
 
+//rotation matrix
 
+mat4 rotationMatrix(vec3 axis, float angle)
+{
+axis = normalize(axis);
+float s = sin(angle);
+float c = cos(angle);
+float oc = 1.0 - c;
 
-/*******************************************************/
-
-    //rotation matrix
-    mat4 rotationMatrix(vec3 axis, float angle)
-    {
-    axis = normalize(axis);
-    float s = sin(angle);
-    float c = cos(angle);
-    float oc = 1.0 - c;
-    
-    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
-                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
-                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
-                0.0,                                0.0,                                0.0,                                1.0);
-    }
+return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+            oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+            oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+            0.0,                                0.0,                                0.0,                                1.0);
+}
 
 vec3 rotate(vec3 v, vec3 axis, float angle) {
 	mat4 m = rotationMatrix(axis, angle);
@@ -176,7 +164,6 @@ vec3 rotate(vec3 v, vec3 axis, float angle) {
 
 vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 v, vec2 fragTexCoord)
 {
-  //lightCol = lightCol / 5;
     lightPos = (MV * vec4(lightPos, 1.f)).xyz;
     vec3 s = normalize(lightPos - p); //this is s for the h equation
 
@@ -186,16 +173,9 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     //creating a roughness value
     vec3 h = normalize(v+s);
 
-    //Creating the lookup vector for cube map.
-    vec3 lookup = reflect(v, n);
-
     // Distribution function
      
     float m = 0.3;
-  
-    /***********************************************************************/
-
-
     float mSquared = m*m;
     float NdotH = dot(n, h); //dot product of surface and light position
     float VdotH = dot(v, h); //dot product of surface and light position
@@ -243,8 +223,8 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
 
 void main()
 {
-   vec3 p = FragmentPosition.xyz / FragmentPosition.w;
-        // Calculate the light vector
+    vec3 p = FragmentPosition.xyz / FragmentPosition.w;
+    // Calculate the light vector
     vec3 s = normalize( vec3(Light.Position) - FragmentPosition.xyz ); 
 
     // Calculate the view vector
@@ -261,10 +241,13 @@ void main()
     //finding the angle where cosx = a dot b
     float cosAngle = dot(normalMapColour, v);
     float angle = acos(cosAngle);
-    //using the rotate function to rotate the normal of the teapot
+
+
     n = rotate(n,v, angle);
 
-    // Reflect the light about the surface normal
+    //Creating a procedural wood grain using Ian Stephenson's OSL wood demo converted into GLSL
+   
+    //defining the colours of the wood grain
     vec3 darkWood = vec3(0.015f, 0.007f, 0.001f);
     darkWood+=vec3(0.05f, 0.05f, 0.05f);
     vec3 lightWood = vec3(0.159f, 0.069f, 0.012f);
@@ -273,6 +256,7 @@ void main()
     float freq = 2.f;
     float variation = 0.1f;
     float l;
+    //creating the noise that determines the pattern of the grain
     float woodNoise = sumOctave(PP, 12, 0.5f, freq, 0.0f, 1.0f); //iterations, persistence, frequency, low, high  
     PP+=woodNoise*variation;
     float woodNoise2 = sumOctave(PP, 12, 0.5f, freq*2.1, 0.0f, 1.0f);

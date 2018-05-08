@@ -137,7 +137,8 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
     // Create our window in a platform agnostic manner
-    int width = 1024; int height = 768;
+    //int width = 1024; int height = 768;
+    int width = 1280; int height = 720;
     GLFWwindow* window = glfwCreateWindow(width, // width
                                           height, // height
                                           "Banana", // title
@@ -196,7 +197,7 @@ int main() {
         g_scene.setViewMatrix(g_camera.viewMatrix());
         g_scene.setProjMatrix(g_camera.projMatrix());
         g_scene.setCubeMatrix(g_camera.cubeMatrix());
-        g_scene.setAimedEye(g_camera.aimedEye());
+    
 
         // Draw our GL stuff
         g_scene.paintGL();

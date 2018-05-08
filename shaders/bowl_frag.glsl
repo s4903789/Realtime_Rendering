@@ -28,7 +28,6 @@ struct LightInfo {
     vec3 Ls; // Specular light intensity
 };
 
-// We'll have a single light in the scene with some default values
 uniform LightInfo Light = LightInfo(
             vec4(2.0, 2.0, 10.0, 1.0),   // position
             vec3(0.2, 0.2, 0.2),        // La
@@ -49,7 +48,6 @@ uniform MaterialInfo Material = MaterialInfo(
             vec3(0.1, 0.1, 0.1),    // Ka
             vec3(1.0, 1.0, 1.0),    // Kd
             vec3(1.0, 1.0, 1.0),    // Ks
-            //10.0  
             20.0                  // Shininess
             );
 
@@ -72,10 +70,10 @@ vec3 permute(vec3 x) {
 }
 
 float snoise(vec2 v) {
-  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
-                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
-                     -0.577350269189626,  // -1.0 + 2.0 * C.x
-                      0.024390243902439); // 1.0 / 41.0
+  const vec4 C = vec4(0.211324865405187,  
+                      0.366025403784439,  
+                     -0.577350269189626,  
+                      0.024390243902439); 
 // First corner
   vec2 i  = floor(v + dot(v, C.yy) );
   vec2 x0 = v -   i + dot(i, C.xx);
@@ -95,16 +93,12 @@ float snoise(vec2 v) {
   m = m*m ;
   m = m*m ;
 
-// Gradients: 41 points uniformly over a line, mapped onto a diamond.
-// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)
-
   vec3 x = 2.0 * fract(p * C.www) - 1.0;
   vec3 h = abs(x) - 0.5;
   vec3 ox = floor(x + 0.5);
   vec3 a0 = x - ox;
 
 // Normalise gradients implicitly by scaling m
-// Approximation of: m *= inversesqrt( a0*a0 + h*h );
   m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
 
 // Compute final noise value at P
@@ -141,6 +135,7 @@ float sumOctave(in vec2 pos,
     noise = noise*(high-low)*0.5f + (high+low)*0.5f;
     return noise;
 }
+/***END REFERENCE****/
 
 //rotation matrix
 
@@ -165,22 +160,18 @@ vec3 rotate(vec3 v, vec3 axis, float angle) {
 vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 v, vec2 fragTexCoord)
 {
     lightPos = (MV * vec4(lightPos, 1.f)).xyz;
-    vec3 s = normalize(lightPos - p); //this is s for the h equation
+    vec3 s = normalize(lightPos - p); 
 
-    // Reflect the light about the surface normal
     vec3 r = reflect( -s, n );
 
-    //creating a roughness value
     vec3 h = normalize(v+s);
-
-    // Distribution function
      
     float m = 0.3;
     float mSquared = m*m;
-    float NdotH = dot(n, h); //dot product of surface and light position
-    float VdotH = dot(v, h); //dot product of surface and light position
-    float NdotV = dot(n, v); //dot product of surface and light position
-    float NdotL = dot(n, s); //dot product of surface and light position
+    float NdotH = dot(n, h); 
+    float VdotH = dot(v, h); 
+    float NdotV = dot(n, v); 
+    float NdotL = dot(n, s); 
     
     float r1  = 1.0 / (4.0f * mSquared * pow(NdotH, 4.0f));
     float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
@@ -195,14 +186,13 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     float G = min(1.0, min(g1, g2));   
 
     // Schlick approximation
-    float F0 = 1.0f; // Fresnel reflectance at normal incidence
+    float F0 = 1.0f; 
     float F_r = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 1.0; // Fresnel reflectance at normal incidence
+    F0 = 1.0; 
     float F_g = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    F0 = 1.0; // Fresnel reflectance at normal incidence
+    F0 = 1.0; 
     float F_b = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
-    
-    // Compute the light from the ambient, diffuse and specular components
+
     
     vec3 spec = G * vec3(F_r, F_g, F_b) * D / NdotV;
   
@@ -212,8 +202,7 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
             lightCol * spec);
     
     float dist = length(lightPos - FragmentPosition.xyz);
-    
-    //float falloff = 1.f/pow(dist, 2.f);
+ 
     float distLess = dist / 1.15f;
     float falloff = 1.f/(distLess * distLess);
     return LightIntensity*vec3(falloff, falloff, falloff);
@@ -224,21 +213,15 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
 void main()
 {
     vec3 p = FragmentPosition.xyz / FragmentPosition.w;
-    // Calculate the light vector
     vec3 s = normalize( vec3(Light.Position) - FragmentPosition.xyz ); 
-
-    // Calculate the view vector
     vec3 v = vec3(0.f, 0.f, 1.f);
-
-    // Calculate the normal (this is the expensive bit in Phong)
     vec3 n = normalize( FragmentNormal );
 
-    //gets the RGB value of the current value
+    //Gets the RGB value of the current value
     vec3 normalMapColour = texture(woodNormal, FragmentTexCoord*6).rgb;
-    //scaling the vector
     normalMapColour = normalize(normalMapColour*2 - 1);
 
-    //finding the angle where cosx = a dot b
+    //Finding the angle where cosx = a dot b
     float cosAngle = dot(normalMapColour, v);
     float angle = acos(cosAngle);
 
@@ -246,8 +229,8 @@ void main()
     n = rotate(n,v, angle);
 
     //Creating a procedural wood grain using Ian Stephenson's OSL wood demo converted into GLSL
-   
-    //defining the colours of the wood grain
+
+    //Defining the colours of the wood grain
     vec3 darkWood = vec3(0.015f, 0.007f, 0.001f);
     darkWood+=vec3(0.05f, 0.05f, 0.05f);
     vec3 lightWood = vec3(0.159f, 0.069f, 0.012f);
@@ -256,8 +239,8 @@ void main()
     float freq = 2.f;
     float variation = 0.1f;
     float l;
-    //creating the noise that determines the pattern of the grain
-    float woodNoise = sumOctave(PP, 12, 0.5f, freq, 0.0f, 1.0f); //iterations, persistence, frequency, low, high  
+    //Creating the noise that determines the pattern of the grain
+    float woodNoise = sumOctave(PP, 12, 0.5f, freq, 0.0f, 1.0f); 
     PP+=woodNoise*variation;
     float woodNoise2 = sumOctave(PP, 12, 0.5f, freq*2.1, 0.0f, 1.0f);
     PP+= woodNoise*variation/2.1;

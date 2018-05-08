@@ -34,8 +34,6 @@ void main()
     vec3 PerturbedVertexPosition = VertexPosition + (VertexNormal * noiseTex * -0.0175f);
     FragmentPosition = MV * vec4(PerturbedVertexPosition, 1.0);
 
-
-
     FragmentTexCoord = TexCoord;
 
     // Compute the position of the vertex

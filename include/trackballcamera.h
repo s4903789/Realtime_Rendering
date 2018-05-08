@@ -42,7 +42,6 @@ public:
     /// Return some parameters for specialist renderers
     glm::vec3 getTarget() const {return glm::vec3(m_target);}
     glm::vec3 getTransformedEye() const {return glm::vec3(m_transformedEye);}
-    glm::dvec3 aimedEye() const {return m_aimedEye;}
 
 private:   
     /// Rotate based on the current mouse position and the mouse click position
@@ -58,7 +57,7 @@ private:
     double m_yaw, m_pitch, m_zoom, m_sensitivity;
 
     /// Store the target and position with this class
-    glm::dvec3 m_target, m_eye, m_transformedEye, m_aimedEye;
+    glm::dvec3 m_target, m_eye, m_transformedEye;
 
     /// Store the last yaw and pitch so that the trackball stays put when the mouse is released
     double m_lastYaw, m_lastPitch;

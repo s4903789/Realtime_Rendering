@@ -1,11 +1,9 @@
 #version 420 core
 
-// Attributes passed on from the vertex shader
 smooth in vec4 FragmentPosition;
 smooth in vec3 FragmentNormal;
 smooth in vec2 FragmentTexCoord;
 
-/// @brief our output fragment colour
 layout (location=0) out vec4 FragColour;
 
 uniform samplerCube envMap;
@@ -14,19 +12,17 @@ uniform sampler2D banana;
 uniform sampler2D normal;
 uniform sampler2D ramp;
 uniform sampler2D tex;
-uniform vec3 aimedEye;
 
 //Setting the light colour and positions for all the lights corresponding to the env cube
 uniform vec3 lightPositions[18];
 uniform vec3 lightColours[18];
 uniform mat4 MV;
 
-//setting the factor to multiply the noise by, depending on how old the banana should be
+//Setting the factor to multiply the noise by, depending on how old the banana should be
 uniform float noiseFactor;
 // Set the maximum environment level of detail
 uniform int envMaxLOD = 10;
 
-// The inverse View matrix
 uniform mat4 invV;
 
 //The rotation matrix used in calculations for the normal map
@@ -47,8 +43,6 @@ vec3 rotate(vec3 v, vec3 axis, float angle) {
         return (m * vec4(v, 1.0)).xyz;
 }
 
-//Lights, materials and stuff from Realtime_Rendering/myshader_frag.glsl
-// Structure for holding light parameters
 struct LightInfo {
     vec4 Position; // Light position in eye coords.
     vec3 La; // Ambient light intensity
@@ -56,7 +50,6 @@ struct LightInfo {
     vec3 Ls; // Specular light intensity
 };
 
-// We'll have a single light in the scene with some default values
 uniform LightInfo Light = LightInfo(
             vec4(2.0, 2.0, 10.0, 1.0),   // position
             vec3(1.0, 1.0, 1.0),        // La
@@ -64,7 +57,6 @@ uniform LightInfo Light = LightInfo(
             vec3(0.1, 0.1, 0.1)         // Ls
             );
 
-// The material properties of our object
 struct MaterialInfo {
     vec3 Ka; // Ambient reflectivity
     vec3 Kd; // Diffuse reflectivity
@@ -72,7 +64,6 @@ struct MaterialInfo {
     float Shininess; // Specular shininess factor
 };
 
-// The object has a material
 uniform MaterialInfo Material = MaterialInfo(
             vec3(0.1, 0.1, 0.1),    // Ka
             vec3(1.0, 1.0, 1.0),    // Kd
@@ -81,7 +72,6 @@ uniform MaterialInfo Material = MaterialInfo(
             );
 
 /****Noise functions appropriated from the noise demo in the rendering_examples directory****/
-
 /* The following simplex noise functions have been taken from WebGL-noise
 * https://github.com/stegu/webgl-noise/blob/master/src/noise2D.glsl
 *>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
@@ -98,10 +88,10 @@ vec3 permute(vec3 x) {
 }
 
 float snoise(vec2 v) {
-  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
-                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
-                     -0.577350269189626,  // -1.0 + 2.0 * C.x
-                      0.024390243902439); // 1.0 / 41.0
+  const vec4 C = vec4(0.211324865405187,  
+                      0.366025403784439,  
+                     -0.577350269189626,  
+                      0.024390243902439); 
 // First corner
   vec2 i  = floor(v + dot(v, C.yy) );
   vec2 x0 = v -   i + dot(i, C.xx);
@@ -121,16 +111,12 @@ float snoise(vec2 v) {
   m = m*m ;
   m = m*m ;
 
-// Gradients: 41 points uniformly over a line, mapped onto a diamond.
-// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)
-
   vec3 x = 2.0 * fract(p * C.www) - 1.0;
   vec3 h = abs(x) - 0.5;
   vec3 ox = floor(x + 0.5);
   vec3 a0 = x - ox;
 
 // Normalise gradients implicitly by scaling m
-// Approximation of: m *= inversesqrt( a0*a0 + h*h );
   m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
 
 // Compute final noise value at P
@@ -167,6 +153,7 @@ float sumOctave(in vec2 pos,
     noise = noise*(high-low)*0.5f + (high+low)*0.5f;
     return noise;
 }
+/*********** END REFERENCE ************************/
 
 vec3 invert(vec3 _value)
 {
@@ -187,35 +174,30 @@ float contrast(float _value)
   return _value *= texture(ramp, vec2(_value.r, 0.5)).r;
 }
 
-//function to calculate the resulting light intensity based on the light positions and intensities
-//specified in envscene.h
+//Function to calculate the resulting light intensity based on the light positions and intensities
+//specified in banana_scene.h
 vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 v, vec2 fragTexCoord, float noise, vec3 lookup)
 {
     lightPos = (MV * vec4(lightPos, 1.f)).xyz;
-    vec3 s = normalize(lightPos - p); //this is s for the h equation
+    vec3 s = normalize(lightPos - p); 
 
-    // Reflect the light about the surface normal
     vec3 r = reflect( -s, n );
 
-    //creating a roughness value
     vec3 h = normalize(v+s);
 
-
-
-    //setting up roughness for when it encounters speckles, it should be rougher
+    //Setting up roughness for when it encounters speckles, it should be rougher
     vec4 roughColourCheck = texture(bananaTex, vec2(FragmentTexCoord.x, -FragmentTexCoord.y));
     float m = 0.5;
-    //float m = 0.01;
     if(roughColourCheck.g < 0.57)
     {
         m = 1.0;
     } 
 
     float mSquared = m*m;
-    float NdotH = dot(n, h); //dot product of surface and light position
-    float VdotH = dot(v, h); //dot product of surface and light position
-    float NdotV = dot(n, v); //dot product of surface and light position
-    float NdotL = dot(n, s); //dot product of surface and light position
+    float NdotH = dot(n, h); 
+    float VdotH = dot(v, h); 
+    float NdotV = dot(n, v); 
+    float NdotL = dot(n, s); 
     
     float r1  = 1.0 / (4.0f * mSquared * pow(NdotH, 4.0f));
     float r2 = (NdotH * NdotH - 1.0) / (mSquared * NdotH * NdotH);
@@ -237,10 +219,8 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
     F0 = 0.05; // Fresnel reflectance at normal incidence
     float F_b = pow(1.0 - VdotH, 5.0) * (1.0 - F0) + F0;    
     
-    // Compute the light from the ambient, diffuse and specular components
-    
     vec3 spec = G * vec3(F_r, F_g, F_b) * D / NdotV;
-
+    //Using the lookup vector from the envMap to determine the specular colour
     vec3 specColour = textureLod(envMap, lookup, m*envMaxLOD).rgb;
 
    
@@ -251,21 +231,18 @@ vec3 calculateLightIntensity(vec3 lightPos, vec3 lightCol, vec3 p, vec3 n, vec3 
             specColour * spec);
     
     float dist = length(lightPos - FragmentPosition.xyz);
-    
-    //float falloff = 1.f/pow(dist, 2.f);
+  
     float distLess = dist / 1.6f;
     float falloff = 1.f/(distLess * distLess);
-
+    //Calculating the falloff of the light (attentuation)
     return LightIntensity*vec3(falloff, falloff, falloff);
 }
 
 
 void main () {
-  
-    // Calculate the normal (this is the expensive bit in Phong)
+
     vec3 n = normalize( FragmentNormal );
 
-    // Calculate the eye vector
     vec3 v = normalize(vec3(-FragmentPosition));
 
     //Creating the lookup vector for cube map.
@@ -289,7 +266,7 @@ void main () {
 
     float blurValue = texture(bananaTex, FragmentTexCoord).x * 8;
     vec4 bananaDiffuse = texture(banana, FragmentTexCoord);
-
+    //Creating the noise values that will determine the marks on the banana
     float speckleNoise = sumOctave(FragmentTexCoord, 12, 0.5f, 20.0f, 0.0f, 1.0f); //iterations, persistence, frequency, low, high
     float maskNoise1 = sumOctave(FragmentTexCoord, 12, 0.5f, 30.0f, 0.0f, 1.0f);
     float maskNoise2 = sumOctave(FragmentTexCoord, 12, 0.5f, 2.0f, 0.0f, 1.0f);
